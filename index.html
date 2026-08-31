@@ -222,6 +222,25 @@
     font-weight:700;
     margin-bottom:9px;
   }
+  .set-label{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:10px 0 5px;
+  }
+  .set-select{
+    width:100%;
+    box-sizing:border-box;
+    border:1px solid rgba(44,38,32,0.18);
+    background:rgba(255,255,255,0.7);
+    border-radius:9px;
+    padding:9px 11px;
+    font:inherit;
+    font-size:14px;
+    color:var(--ink);
+    outline:none;
+  }
+  .set-select:focus{border-color:var(--azul); box-shadow:0 0 0 2px rgba(44,90,115,0.10);}
   .set-row{display:flex; gap:7px;}
   #wordLimit{
     flex:1; min-width:0; border:1px solid rgba(44,38,32,0.18);
@@ -349,7 +368,22 @@
       <span class="chevron">▼</span>
     </button>
     <div class="set-card" id="setCard">
-      <div class="set-title">학습할 단어 수</div>
+      <div class="set-title">학습 범위 설정</div>
+      <label class="set-label" for="startLetter">시작 글자</label>
+      <select id="startLetter" class="set-select">
+        <option value="all">전체</option>
+        <option value="a">A</option><option value="b">B</option><option value="c">C</option>
+        <option value="d">D</option><option value="e">E</option><option value="f">F</option>
+        <option value="g">G</option><option value="h">H</option><option value="i">I</option>
+        <option value="j">J</option><option value="k">K</option><option value="l">L</option>
+        <option value="m">M</option><option value="n">N</option><option value="o">O</option>
+        <option value="p">P</option><option value="q">Q</option><option value="r">R</option>
+        <option value="s">S</option><option value="t">T</option><option value="u">U</option>
+        <option value="v">V</option><option value="w">W</option><option value="x">X</option>
+        <option value="y">Y</option><option value="z">Z</option><option value="ñ">Ñ</option>
+      </select>
+
+      <label class="set-label" for="wordLimit">학습할 단어 수</label>
       <div class="set-row">
         <input id="wordLimit" type="number" min="1" placeholder="전체" inputmode="numeric">
         <button id="applyLimitBtn" class="set-btn">설정</button>
@@ -415,6 +449,7 @@
   const resetBtn = document.getElementById('resetBtn');
   const saveStatusEl = document.getElementById('saveStatus');
   const wordLimitEl = document.getElementById('wordLimit');
+  const startLetterEl = document.getElementById('startLetter');
   const applyLimitBtn = document.getElementById('applyLimitBtn');
   const setHelpEl = document.getElementById('setHelp');
   const settingsToggle = document.getElementById('settingsToggle');
@@ -429,6 +464,7 @@
   let okCount = 0;
   let noCount = 0;
   let selectedVocab = null; // 제한 모드에서 고정된 단어 목록
+  let selectedLetter = 'all'; // 선택된 시작 글자
 
   function shuffle(arr){
     const a = arr.slice();
@@ -443,22 +479,30 @@
     return Array.isArray(selectedVocab) && selectedVocab.length ? selectedVocab : VOCAB;
   }
 
+  function getLetterVocab(letter){
+    if(!letter || letter === 'all') return VOCAB;
+    return VOCAB.filter(v => v.es && v.es.charAt(0).toLocaleLowerCase('es') === letter);
+  }
+
   function updateSetHelp(){
+    const letterText = selectedLetter === 'all' ? '전체' : selectedLetter.toUpperCase() + '로 시작하는';
     if(Array.isArray(selectedVocab) && selectedVocab.length){
       setHelpEl.textContent = '처음 선택된 ' + selectedVocab.length + '개 단어만 계속 반복합니다. 설정을 바꾸기 전까지 같은 단어가 유지됩니다.';
       wordLimitEl.value = selectedVocab.length;
-      settingsToggleText.textContent = selectedVocab.length + '개 단어 학습 중';
+      startLetterEl.value = selectedLetter;
+      settingsToggleText.textContent = letterText + ' 단어 · ' + selectedVocab.length + '개 학습 중';
     }else{
-      setHelpEl.textContent = '현재 전체 ' + VOCAB.length + '개 단어를 랜덤으로 학습합니다.';
+      setHelpEl.textContent = '현재 ' + letterText + ' 단어 ' + getLetterVocab(selectedLetter).length + '개를 랜덤으로 학습합니다.';
       wordLimitEl.value = '';
-      settingsToggleText.textContent = '학습 단어 수 설정';
+      startLetterEl.value = selectedLetter;
+      settingsToggleText.textContent = letterText + ' 단어 학습 중';
     }
   }
 
   function saveState(){
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        queue, pos, cycle, current, phase, okCount, noCount, selectedVocab,
+        queue, pos, cycle, current, phase, okCount, noCount, selectedVocab, selectedLetter,
         savedAt: new Date().toISOString()
       }));
       saveStatusEl.textContent = '✓ 학습 기록 자동 저장됨';
@@ -481,6 +525,7 @@
       okCount = Number.isInteger(st.okCount) ? st.okCount : 0;
       noCount = Number.isInteger(st.noCount) ? st.noCount : 0;
       selectedVocab = Array.isArray(st.selectedVocab) && st.selectedVocab.length ? st.selectedVocab : null;
+      selectedLetter = st.selectedLetter || 'all';
       okCountEl.textContent = okCount;
       noCountEl.textContent = noCount;
       cycleLabelEl.textContent = cycle + '회독';
@@ -586,18 +631,30 @@
   }
 
   function applyLimit(limitValue){
+    const letter = startLetterEl.value || 'all';
+    const pool = getLetterVocab(letter);
     let n = Number(limitValue);
+
+    if(pool.length === 0){
+      alert(letter.toUpperCase() + '로 시작하는 단어가 없습니다.');
+      return;
+    }
+
+    selectedLetter = letter;
+
     if(limitValue === 'all' || limitValue === '' || !Number.isFinite(n)){
       selectedVocab = null;
       wordLimitEl.value = '';
     }else{
       n = Math.floor(n);
       if(n < 1) n = 1;
-      if(n > VOCAB.length) n = VOCAB.length;
-      // 여기서 한 번 랜덤으로 뽑고, 이후 회독마다 이 목록만 다시 섞습니다.
-      selectedVocab = shuffle(VOCAB).slice(0, n);
+      if(n > pool.length) n = pool.length;
+      // 선택한 글자 범위 안에서 한 번만 랜덤으로 뽑고,
+      // 이후 회독에서는 이 동일한 목록만 반복합니다.
+      selectedVocab = shuffle(pool).slice(0, n);
       wordLimitEl.value = n;
     }
+
     okCount = 0;
     noCount = 0;
     cycle = 1;
@@ -607,6 +664,7 @@
     nextWord();
     updateSetHelp();
   }
+
 
   settingsToggle.addEventListener('click', function(){
     const isOpen = setCard.classList.toggle('open');
@@ -648,6 +706,7 @@
     if(!confirm('학습 기록과 단어 수 설정을 모두 초기화할까요?')) return;
     localStorage.removeItem(STORAGE_KEY);
     selectedVocab = null;
+    selectedLetter = 'all';
     okCount = 0; noCount = 0; cycle = 1;
     okCountEl.textContent = 0; noCountEl.textContent = 0;
     newCycle();
