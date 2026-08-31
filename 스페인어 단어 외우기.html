@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스페인어 단어장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe6d3;
+    --paper-deep:#e4d7b9;
+    --ink:#2c2620;
+    --ink-soft:#6b5f4f;
+    --clay:#b0472e;
+    --clay-deep:#8f3a25;
+    --azul:#2c5a73;
+    --azul-deep:#1f4356;
+    --gold:#d9a441;
+    --green:#3d7a4f;
+    --card-shadow: 0 1px 0 rgba(44,38,32,0.06), 0 20px 40px -20px rgba(44,38,32,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(176,71,46,0.10), transparent 42%),
+      radial-gradient(circle at 88% 90%, rgba(44,90,115,0.12), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+  }
+
+  .app{
+    width:100%;
+    max-width:560px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:18px;
+    padding:0 4px;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:20px;
+    letter-spacing:0.01em;
+    color:var(--ink);
+  }
+  .brand em{
+    color:var(--clay);
+    font-style:normal;
+  }
+  .stats{
+    display:flex;
+    gap:14px;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .stats b{color:var(--ink); font-weight:600;}
+  .stats .ok b{color:var(--green);}
+  .stats .no b{color:var(--clay);}
+
+  .card{
+    background:var(--paper-deep);
+    border-radius:20px;
+    box-shadow:var(--card-shadow);
+    padding:44px 36px 32px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(44,38,32,0.06);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:6px;
+    background:linear-gradient(90deg, var(--clay) 0 33%, var(--paper-deep) 33% 34%, var(--gold) 34% 66%, var(--paper-deep) 66% 67%, var(--azul) 67% 100%);
+    opacity:0.85;
+  }
+
+  .progress-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:26px;
+  }
+  .progress-row .cycle{
+    letter-spacing:0.02em;
+  }
+  .progress-track{
+    flex:1;
+    height:3px;
+    margin:0 12px;
+    background:rgba(44,38,32,0.10);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--clay);
+    width:0%;
+    transition:width .25s ease;
+  }
+
+  .word-zone{
+    text-align:center;
+    margin-bottom:30px;
+  }
+  .es-word{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(34px, 8vw, 50px);
+    line-height:1.15;
+    color:var(--ink);
+    word-break:break-word;
+  }
+
+  .answer-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  #answer{
+    flex:1;
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:17px;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1.5px solid rgba(44,38,32,0.16);
+    background:var(--paper);
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  #answer:focus{
+    border-color:var(--azul);
+    box-shadow:0 0 0 3px rgba(44,90,115,0.15);
+  }
+  #answer:disabled{
+    color:var(--ink-soft);
+  }
+  #answer.correct{ border-color:var(--green); background:#eaf3ea; }
+  #answer.wrong{ border-color:var(--clay); background:#f6e9e5; }
+
+  .go-btn{
+    flex:none;
+    width:52px;
+    border:none;
+    border-radius:12px;
+    background:var(--azul);
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .go-btn:hover{background:var(--azul-deep);}
+  .go-btn:active{transform:scale(0.95);}
+
+  .reveal{
+    min-height:64px;
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:15px;
+    line-height:1.55;
+    display:none;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .reveal.show{ display:flex; }
+  .reveal.is-correct{ background:#eaf3ea; color:#28532f; }
+  .reveal.is-wrong{ background:#f6e9e5; color:#7c3020; }
+  .reveal .verdict{
+    font-weight:700;
+    flex:none;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .reveal .meaning{
+    flex:1;
+  }
+  .reveal .meaning b{
+    display:block;
+    font-size:16px;
+    margin-bottom:2px;
+  }
+
+  .hint{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+  .hint kbd{
+    background:rgba(44,38,32,0.08);
+    border-radius:5px;
+    padding:1px 7px;
+    font-family:inherit;
+    font-size:11.5px;
+  }
+
+  .footer-row{
+    display:flex;
+    justify-content:center;
+    margin-top:16px;
+  }
+  .reset-btn{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-size:13px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:4px 8px;
+  }
+  .reset-btn:hover{ color:var(--clay); }
+
+  @media (max-width: 420px){
+    .card{ padding:32px 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">Vocabu<em>lario</em></div>
+    <div class="stats">
+      <span class="ok">정답 <b id="okCount">0</b></span>
+      <span class="no">오답 <b id="noCount">0</b></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="progress-row">
+      <span id="cycleLabel" class="cycle">1회독</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progressLabel">0 / 0</span>
+    </div>
+
+    <div class="word-zone">
+      <div class="es-word" id="esWord">·</div>
+    </div>
+
+    <div class="answer-row">
+      <input id="answer" type="text" placeholder="뜻을 한글로 입력하세요" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="go-btn" id="goBtn" title="확인 / 다음">↵</button>
+    </div>
+
+    <div class="reveal" id="reveal">
+      <span class="verdict" id="verdict"></span>
+      <span class="meaning" id="meaning"></span>
+    </div>
+
+    <div class="hint" id="hintText">뜻을 입력하고 <kbd>Enter</kbd>를 누르세요</div>
+  </div>
+
+  <div class="footer-row">
+    <button class="reset-btn" id="resetBtn">기록 초기화</button>
+  </div>
+</div>
+
+<script id="vocab-data" type="application/json">[{"es":"Hispanoamérica","kr":"라틴아메리카"},{"es":"a","kr":"-를, -에게, -쪽으로, -를 위해"},{"es":"abierto","kr":"열린"},{"es":"abogado","kr":"변호사"},{"es":"abrazo","kr":"포옹"},{"es":"abreviación","kr":"약어"},{"es":"abrigo","kr":"외투"},{"es":"abril","kr":"4월"},{"es":"abrir","kr":"열다, 펴다; 열리다, 펴지다"},{"es":"abuelo","kr":"조부, 조모"},{"es":"aburrido","kr":"지루한"},{"es":"aburrir","kr":"지루하게 하다"},{"es":"acabar","kr":"끝내다"},{"es":"academia","kr":"학원"},{"es":"acceso","kr":"접근"},{"es":"aceptado","kr":"받아들여진"},{"es":"aceptar","kr":"받아들이다"},{"es":"acerca","kr":"~에 관해"},{"es":"acompañar","kr":"동행하다"},{"es":"acostar","kr":"눕히다; (재귀형) 눕다, 잠자리에 들다."},{"es":"acostarse","kr":"눕다"},{"es":"actividad","kr":"활동, 활기"},{"es":"activo","kr":"활발한"},{"es":"acto","kr":"활동, 행동, 법령"},{"es":"actor","kr":"남자 배우"},{"es":"actriz","kr":"여자 배우"},{"es":"actual","kr":"현재의"},{"es":"actualidad","kr":"현실, 현상, 현재"},{"es":"actualmente","kr":"현재"},{"es":"acuerdo","kr":"(의견의) 일치, 동의, 협정, 협약"},{"es":"adecuación","kr":"적합"},{"es":"adecuado","kr":"적당한, 적절한"},{"es":"adelantar","kr":"앞으로 가다"},{"es":"adelante","kr":"앞으로"},{"es":"adelgazar","kr":"살을 빼다"},{"es":"además","kr":"더욱이, 게다가, 그밖에"},{"es":"adentrarse","kr":"안으로 들어가다"},{"es":"adivinar","kr":"점치다, 알아내다, 알아맞히다"},{"es":"adiós","kr":"안녕!"},{"es":"adorar","kr":"경배하다, 숭배하다"},{"es":"adosado","kr":"기댄"},{"es":"adquirir","kr":"획득하다"},{"es":"adónde","kr":"어디로"},{"es":"aeropuerto","kr":"공항"},{"es":"afeitar","kr":"면도해 주다; (재귀형) 면도하다"},{"es":"afición","kr":"취미, 오락"},{"es":"afirmativo","kr":"긍정적인"},{"es":"agencia","kr":"에이전트 업무, 중개업"},{"es":"agenda","kr":"수첩, 계획표"},{"es":"agosto","kr":"8월"},{"es":"agradable","kr":"즐거운, 쾌적한"},{"es":"agua","kr":"물"},{"es":"aguafiestas","kr":"분위기 깨는 사람"},{"es":"ahora","kr":"지금"},{"es":"ahí","kr":"거기에, 그 쪽에"},{"es":"aire","kr":"공기, 대기, 바람"},{"es":"ajedrez","kr":"체스, 서양의 장기"},{"es":"ala","kr":"날개"},{"es":"alameda","kr":"산책길"},{"es":"alegre","kr":"기쁜, 즐거운"},{"es":"alemán","kr":"독일사람; 독일어"},{"es":"alfabeto","kr":"알파벳"},{"es":"algo","kr":"어떤 것, 무엇; 약간, 얼마간"},{"es":"alguien","kr":"어떤 사람, 누군가"},{"es":"alguno","kr":"어느, 어떤; 어떤 사람, 어떤 것"},{"es":"alimentar","kr":"영양을 공급하다"},{"es":"alimiento","kr":"음식, 영양"},{"es":"allí","kr":"저기, 저곳에"},{"es":"almacén","kr":"백화점"},{"es":"almorzar","kr":"점심을 먹다, 브런치를 먹다"},{"es":"almuerzo","kr":"점심식사"},{"es":"alojarse","kr":"숙박하다"},{"es":"alquilar","kr":"빌리다, 빌려주다"},{"es":"alrededor","kr":"주위에"},{"es":"alteración","kr":"변화, 변경"},{"es":"alto","kr":"높은, 키가 큰"},{"es":"altruista","kr":"이타주의자"},{"es":"altura","kr":"높이, 키"},{"es":"alumno","kr":"학생"},{"es":"ama","kr":"여주인"},{"es":"amable","kr":"친절한, 다정한, 사랑스러운"},{"es":"amar","kr":"사랑하다"},{"es":"amarillo","kr":"노란; 노란색"},{"es":"ambiente","kr":"주위에 있는; 분위기, 환경"},{"es":"ambulancia","kr":"구급차"},{"es":"ambulatorio","kr":"진료소"},{"es":"amigo","kr":"사이좋은, 친한; 친구"},{"es":"amistad","kr":"우정"},{"es":"amo","kr":"주인"},{"es":"amor","kr":"사랑"},{"es":"amplio","kr":"넓은"},{"es":"andar","kr":"걷다"},{"es":"anillo","kr":"반지"},{"es":"animal","kr":"동물"},{"es":"anoche","kr":"어젯밤에"},{"es":"anotar","kr":"메모하다, 기록하다"},{"es":"ante","kr":"-의 앞에"},{"es":"anterior","kr":"이전의"},{"es":"antes","kr":"전에, 앞에"},{"es":"antiguo","kr":"고대의, 옛날의, 해묵은"},{"es":"antipático","kr":"반감을 일으키게 하는"},{"es":"anuncio","kr":"광고"},{"es":"anímico","kr":"영혼의"},{"es":"apagar","kr":"끄다"},{"es":"aparecer","kr":"나타나다"},{"es":"apartamento","kr":"아파트"},{"es":"apasionado","kr":"열정적인, 열성적인 팬"},{"es":"apellido","kr":"성(姓)"},{"es":"apenas","kr":"거의, 간신히; ~하자마자"},{"es":"aperitivo","kr":"식사 전 식욕 증진을 위한 음식 또는 음료"},{"es":"aplanado","kr":"납작한, 평평한"},{"es":"aportar","kr":"가까이 가다, 입항하다"},{"es":"apreciar","kr":"(가치를) 평가하다"},{"es":"aprender","kr":"배우다"},{"es":"aproximadamente","kr":"대략"},{"es":"aquel","kr":"저; 저것, 저 사람"},{"es":"aquello","kr":"저 것, 저 일"},{"es":"aquí","kr":"이곳, 이곳에"},{"es":"arabófono","kr":"아랍어 글자를 사용하는"},{"es":"arena","kr":"모래"},{"es":"argentino","kr":"아르헨티나 사람"},{"es":"arma","kr":"무기, 병기; () 군대"},{"es":"armario","kr":"옷장, 찬장"},{"es":"arquitecto","kr":"건축가"},{"es":"arreglar","kr":"정리하다, 수리하다"},{"es":"arriba","kr":"위로, 위에"},{"es":"arroba","kr":"(전자우편 주소의) @"},{"es":"arroz","kr":"쌀, 벼"},{"es":"arruga","kr":"주름"},{"es":"arte","kr":"예술"},{"es":"artesanía","kr":"수공예"},{"es":"artista","kr":"예술가"},{"es":"asado","kr":"구운; 불고기"},{"es":"ascensor","kr":"승강기"},{"es":"asear","kr":"깨끗하게 하다, 청소하다, 몸단장하다"},{"es":"asegurar","kr":"안심시키다, 신뢰를 주다, 확실히 하다"},{"es":"asiento","kr":"좌석"},{"es":"asignatura","kr":"과목"},{"es":"asimismo","kr":"역시, 마찬가지로"},{"es":"asistir","kr":"참석하다"},{"es":"aspecto","kr":"측면, 관점"},{"es":"aspirina","kr":"아스피린"},{"es":"asunto","kr":"일, 사건"},{"es":"así","kr":"이렇게, 그렇게; 그리하여, 그 때문에"},{"es":"atención","kr":"주의, 주목"},{"es":"atracción","kr":"유인, 매력"},{"es":"atrevido","kr":"대담한"},{"es":"aula","kr":"강의실"},{"es":"aunque","kr":"비록 ~이지만"},{"es":"autobús","kr":"버스"},{"es":"autorretrato","kr":"자화상"},{"es":"autónomo","kr":"자치의, 자립적인"},{"es":"avenida","kr":"대로(大路)"},{"es":"avisar","kr":"알리다"},{"es":"aviso","kr":"알림"},{"es":"avión","kr":"비행기"},{"es":"ayer","kr":"어제, 어저께"},{"es":"ayuda","kr":"지원, 도움, 원조"},{"es":"ayudar","kr":"도와주다"},{"es":"ayuntamiento","kr":"시청"},{"es":"azul","kr":"푸른, 청색의; 청색"},{"es":"azúcar","kr":"설탕"},{"es":"año","kr":"해, 년(年)"},{"es":"bacalao","kr":"대구(생선)"},{"es":"bachillerato","kr":"중등 교육, 고등학교 교육"},{"es":"bailar","kr":"춤추다"},{"es":"baile","kr":"춤"},{"es":"bajar","kr":"내리다"},{"es":"bajo","kr":"낮은, 키 작은; 낮게, 아래로; -아래"},{"es":"balcón","kr":"발코니"},{"es":"baloncesto","kr":"농구"},{"es":"balón","kr":"공"},{"es":"banco","kr":"은행, 벤치"},{"es":"banderrillero","kr":"반데리예로"},{"es":"bar","kr":"바, 선술집"},{"es":"barato","kr":"값이 싼"},{"es":"barba","kr":"턱수염"},{"es":"barbacoa","kr":"바비큐"},{"es":"barco","kr":"배"},{"es":"barrer","kr":"쓸다"},{"es":"barrio","kr":"동네, 구역"},{"es":"barro","kr":"진흙"},{"es":"bastante","kr":"충분한; 충분하게"},{"es":"batería","kr":"배터리"},{"es":"bañar","kr":"목욕시키다; (재귀형) 목욕하다"},{"es":"bañarse","kr":"목욕하다, 해수욕하다"},{"es":"bañera","kr":"욕조"},{"es":"baño","kr":"욕실, 화장실"},{"es":"beber","kr":"마시다"},{"es":"bebida","kr":"음료수"},{"es":"bebé","kr":"갓난아이"},{"es":"bello","kr":"아름다운"},{"es":"bellota","kr":"도토리"},{"es":"beso","kr":"입맞춤"},{"es":"biblioteca","kr":"도서관"},{"es":"bicicleta","kr":"자전거"},{"es":"bien","kr":"잘, 훌륭하게"},{"es":"bienvenido","kr":"잘 환영받은; 환영합니다"},{"es":"bigote","kr":"콧수염"},{"es":"billete","kr":"표, 지폐"},{"es":"biográfico","kr":"전기의"},{"es":"bistec","kr":"비프스테이크"},{"es":"blanco","kr":"흰; 흰색"},{"es":"blusa","kr":"블라우스"},{"es":"boca","kr":"입"},{"es":"bocadillo","kr":"스페인식 샌드위치"},{"es":"boda","kr":"결혼식 결혼"},{"es":"boli","kr":"볼펜(bolígrafo)"},{"es":"bolsa","kr":"주머니, 지갑, 가방"},{"es":"bolso","kr":"손가방"},{"es":"bolígrafo","kr":"볼펜"},{"es":"bomba","kr":"폭탄"},{"es":"bombillo","kr":"전구"},{"es":"bonito","kr":"귀여운, 예쁜"},{"es":"borrar","kr":"지우다"},{"es":"botella","kr":"병"},{"es":"botón","kr":"단추, 스위치"},{"es":"bravo","kr":"용맹한, 사나운"},{"es":"brazo","kr":"팔"},{"es":"breve","kr":"간단한"},{"es":"bueno","kr":"좋은, 착한, 훌륭한"},{"es":"busca","kr":"수색, 검색"},{"es":"buscar","kr":"찾다"},{"es":"béisbol","kr":"야구"},{"es":"caballo","kr":"말"},{"es":"cabello","kr":"머리카락"},{"es":"caber","kr":"여지가 있다"},{"es":"cabeza","kr":"머리"},{"es":"cable","kr":"케이블, 밧줄"},{"es":"cada","kr":"각각의, 저마다"},{"es":"cadena","kr":"체인점"},{"es":"caer","kr":"떨어지다"},{"es":"cafetería","kr":"커피숍, 간이식당"},{"es":"café","kr":"커피"},{"es":"caja","kr":"상자, 금고, 수납처"},{"es":"cajero","kr":"(상점의) 출납 담당자"},{"es":"calefacción","kr":"난방"},{"es":"calendario","kr":"달력"},{"es":"calidad","kr":"품질"},{"es":"caliente","kr":"뜨거운"},{"es":"calle","kr":"도로, 거리, 가(街)"},{"es":"calor","kr":"더위, 열기"},{"es":"cama","kr":"침대"},{"es":"camarero","kr":"종업원"},{"es":"cambiar","kr":"바꾸다, 교체하다"},{"es":"cambio","kr":"교환, 잔돈, 환전"},{"es":"caminar","kr":"걷다"},{"es":"camino","kr":"길"},{"es":"camisa","kr":"셔츠"},{"es":"camiseta","kr":"티셔츠"},{"es":"campeón","kr":"챔피언"},{"es":"campo","kr":"들(판), 시골, 분야"},{"es":"canción","kr":"노래"},{"es":"cansado","kr":"피곤한"},{"es":"cantante","kr":"가수"},{"es":"cantar","kr":"노래하다"},{"es":"cantidad","kr":"분량"},{"es":"capaz","kr":"~할 수 있는"},{"es":"capital","kr":"자본, 수도, 중요한, 중대한"},{"es":"capitán","kr":"우두머리"},{"es":"capítulo","kr":"(책 등의) 장"},{"es":"cara","kr":"얼굴"},{"es":"característica","kr":"특징"},{"es":"cariñoso","kr":"사랑스러운"},{"es":"carnaval","kr":"카니발"},{"es":"carne","kr":"고기"},{"es":"caro","kr":"비싼"},{"es":"carrera","kr":"달리기, (학업) 과정, 경력, 이력"},{"es":"carta","kr":"편지, 메뉴(판), 카드, 지도"},{"es":"cartón","kr":"piedra 두꺼운 마분지"},{"es":"carácter","kr":"성격, 특징"},{"es":"casa","kr":"집"},{"es":"casado","kr":"결혼한"},{"es":"casar","kr":"결혼시키다; (재귀형) con -와 결혼하다."},{"es":"casi","kr":"거의, 대략"},{"es":"caso","kr":"경우, 사건"},{"es":"castigar","kr":"벌주다"},{"es":"catalán","kr":"카탈루냐어"},{"es":"catedral","kr":"주교좌성당, 대성당"},{"es":"causa","kr":"원인"},{"es":"cebolla","kr":"양파"},{"es":"celebración","kr":"축하행사, 개최"},{"es":"celebrar","kr":"축하하다, 기리다, 개최하다"},{"es":"celular","kr":"휴대전화"},{"es":"cena","kr":"저녁 식사"},{"es":"cenar","kr":"저녁밥을 먹다"},{"es":"cenote","kr":"천연 지하 연못, 우물"},{"es":"centavo","kr":"센트"},{"es":"central","kr":"중앙의, 중심의; 본부, 본점"},{"es":"centro","kr":"가운데, 중앙, 중심지"},{"es":"cepillar","kr":"솔질을 하다"},{"es":"cepillarse","kr":"양치질하다"},{"es":"cerca","kr":"가까이, 가까이에"},{"es":"cercano","kr":"가까운"},{"es":"cerdo","kr":"돼지"},{"es":"cereal","kr":"곡물"},{"es":"cero","kr":"영의; 영, 제로"},{"es":"cerrado","kr":"닫힌"},{"es":"cerrar","kr":"닫다"},{"es":"ceviche","kr":"세비체"},{"es":"chalé","kr":"별장"},{"es":"chao","kr":"안녕, 안녕히 가세요."},{"es":"chaqueta","kr":"자켓"},{"es":"charla","kr":"잡담"},{"es":"charlar","kr":"잡담하다"},{"es":"chat","kr":"채팅"},{"es":"chatear","kr":"채팅하다"},{"es":"cheque","kr":"수표"},{"es":"chico","kr":"작은; 어린아이"},{"es":"chino","kr":"중국의; 중국사람; 중국어"},{"es":"chocolate","kr":"초콜릿"},{"es":"chorizo","kr":"돼지 순대"},{"es":"chuleta","kr":"갈비"},{"es":"cielo","kr":"하늘"},{"es":"ciencia","kr":"과학, 학문"},{"es":"científico","kr":"과학자"},{"es":"cierto","kr":"확실한, 어떤; 분명하게"},{"es":"ciervo","kr":"사슴"},{"es":"cine","kr":"영화관, 영화"},{"es":"circular","kr":"둥근, 원형의"},{"es":"circunstancia","kr":"상황"},{"es":"cisne","kr":"백조"},{"es":"cita","kr":"(만날) 약속"},{"es":"ciudad","kr":"시, 도시"},{"es":"civil","kr":"시민의"},{"es":"claro","kr":"맑은, 밝은, 명확한, 명백한; 분명하게"},{"es":"clase","kr":"수업, 교실, 종류"},{"es":"clave","kr":"정답, 코드"},{"es":"cliente","kr":"고객, 손님"},{"es":"clima","kr":"기후, 풍토"},{"es":"club","kr":"클럽, 모임"},{"es":"clásico","kr":"고전의"},{"es":"coche","kr":"자동차"},{"es":"cocina","kr":"부엌, 요리(법), 음식"},{"es":"cocinar","kr":"요리하다"},{"es":"coincidir","kr":"일치하다, 동시에 일어나다"},{"es":"colaboración","kr":"협력"},{"es":"colombiano","kr":"콜롬비아 사람"},{"es":"combate","kr":"전투, 싸움"},{"es":"combinado","kr":"조합된"},{"es":"comenzar","kr":"시작하다"},{"es":"comer","kr":"먹다; 먹다, 식사하다"},{"es":"comercial","kr":"무역의"},{"es":"comida","kr":"음식, 점심식사"},{"es":"comisaría","kr":"경찰서"},{"es":"como","kr":"-과 같이, -처럼, -대로, -로서"},{"es":"comparación","kr":"비교"},{"es":"comparar","kr":"비교하다"},{"es":"compartir","kr":"나누다, 공유하다"},{"es":"compañero","kr":"동료, 벗"},{"es":"compañía","kr":"회사, 상사, 동반, 수반"},{"es":"completar","kr":"완성시키다"},{"es":"complicado","kr":"복잡한, 이해하기 어려운"},{"es":"compra","kr":"구입, 쇼핑"},{"es":"comprar","kr":"사다, 구입하다"},{"es":"comprender","kr":"이해하다, 포함하다"},{"es":"comprobar","kr":"확인하다"},{"es":"compromiso","kr":"약속, 타협"},{"es":"computadora","kr":"컴퓨터"},{"es":"comunicación","kr":"통신, 연락"},{"es":"comunicar","kr":"전달하다, 의사소통하다"},{"es":"comunidad","kr":"공동체, 단체"},{"es":"común","kr":"공통의"},{"es":"con","kr":"-와 함께"},{"es":"concertar","kr":"일치시키다"},{"es":"concierto","kr":"콘서트"},{"es":"conducir","kr":"운송하다, 운전하다"},{"es":"conmemorar","kr":"기념하다, 축하하다, 기념되다"},{"es":"conmigo","kr":"pers. 나와 함께"},{"es":"conocer","kr":"(사람, 장소 등을) 알다"},{"es":"conocido","kr":"알려진, 유명한"},{"es":"conocimiento","kr":"지식"},{"es":"consejo","kr":"충고"},{"es":"conservar","kr":"보존하다, 보유하다"},{"es":"considerar","kr":"간주하다, 여기다"},{"es":"consistir","kr":"~로 되어 있다, 구성되다"},{"es":"constitución","kr":"헌법"},{"es":"consultar","kr":"진찰을 받다"},{"es":"consumir","kr":"소비하다"},{"es":"contar","kr":"세다, 계산하다, 이야기하다"},{"es":"contenido","kr":"내용, 내용물"},{"es":"contento","kr":"만족한"},{"es":"contestar","kr":"대답하다"},{"es":"continental","kr":"대륙(성)의"},{"es":"continente","kr":"대륙"},{"es":"contrato","kr":"계약서"},{"es":"contribuir","kr":"기여하다"},{"es":"controlar","kr":"통제하다"},{"es":"conversación","kr":"회화, 대화"},{"es":"convertir","kr":"변화시키다, 변화되다"},{"es":"cooperación","kr":"협력"},{"es":"copa","kr":"술잔"},{"es":"corbata","kr":"넥타이"},{"es":"coreano","kr":"한국사람; 한국어"},{"es":"correcto","kr":"정확한"},{"es":"correo","kr":"우편(물), 우체국"},{"es":"corrida","kr":"달리기, 투우"},{"es":"corto","kr":"짧은"},{"es":"cosa","kr":"일, 물건, 것"},{"es":"costa","kr":"해안, 비용"},{"es":"costar","kr":"비용이 들다, (값이) ~이다, ~이 힘들다"},{"es":"coste","kr":"비용"},{"es":"costoso","kr":"비용이 드는"},{"es":"costumbre","kr":"풍습, 습관"},{"es":"cotización","kr":"시세, 견적"},{"es":"crear","kr":"창조하다, 만들다"},{"es":"crecer","kr":"성장하다"},{"es":"crecimiento","kr":"성장"},{"es":"creer","kr":"믿다, 생각하다"},{"es":"criado","kr":"자라난"},{"es":"cristiano","kr":"기독교의"},{"es":"croqueta","kr":"크로켓"},{"es":"crucigrama","kr":"십자퍼즐게임"},{"es":"crudeza","kr":"날것, 생경함, 조잡함"},{"es":"cruz","kr":"십자가, 십자 모양"},{"es":"cuaderno","kr":"공책, 노트"},{"es":"cuadrado","kr":"정사각의"},{"es":"cuadro","kr":"그림, 액자, 4각, 어느 것"},{"es":"cualquiera","kr":"어떤 ~이라도; 어떤 것이라도, 어떤 사람이라도"},{"es":"cuando","kr":"~할 때"},{"es":"cuarto","kr":"네 번째의, 사등분한; 4분의 1, 방"},{"es":"cuchara","kr":"숟가락"},{"es":"cuchillo","kr":"나이프"},{"es":"cuello","kr":"목"},{"es":"cuenta","kr":"계산(서), 구좌, 세기"},{"es":"cuerpo","kr":"신체, 몸"},{"es":"cuidado","kr":"조심"},{"es":"cuidar","kr":"신경을 쓰다, 보호하다, 자신의 몸을 가꾸다, 돌보다"},{"es":"cultura","kr":"문화"},{"es":"cultural","kr":"문화적인"},{"es":"cumbia","kr":"꿈비아"},{"es":"cumpleaños","kr":"생일"},{"es":"cumplir","kr":"채우다, (의무를) 완수하다, 만 -세가 되다"},{"es":"cuna","kr":"요람"},{"es":"curso","kr":"학과, 강좌, 과정, 코스"},{"es":"cuál","kr":"어느 것, 어떤 것; 어느, 어떤"},{"es":"cuándo","kr":"언제"},{"es":"cuánto","kr":"몇 개의, 얼마만큼의; 몇 사람, 몇 개"},{"es":"cámara","kr":"거실, 회의, 카메라"},{"es":"céntimo","kr":"센티모"},{"es":"círculo","kr":"원, 원형"},{"es":"código","kr":"코드; ~ postal 우편번호"},{"es":"cómo","kr":"어떻게, 뭐라고"},{"es":"cómoda","kr":"옷장"},{"es":"cómodo","kr":"편리한, 쾌적한"},{"es":"dar","kr":"주다; ~ vuelta 돌다"},{"es":"de","kr":"~의, ~로부터"},{"es":"debajo","kr":"아래에, 아래로"},{"es":"deber","kr":"~해야 한다, 의무가 있다, 빚지다, ~덕분이다; 숙제, 의무"},{"es":"decir","kr":"말하다"},{"es":"declarar","kr":"표명하다"},{"es":"dedicar","kr":"바치다, 드리다, 헌신하다, ~에 몰두하다, ~을 직업으로 하다"},{"es":"dedo","kr":"손가락, 발가락"},{"es":"deficiencia","kr":"결핍"},{"es":"dejar","kr":"놔두다, 그만두다, ~하게 하다, 주다"},{"es":"delante","kr":"앞에, 정면에"},{"es":"delantero","kr":"스트라이커, 공격수"},{"es":"delgado","kr":"마른, 날씬한"},{"es":"delicioso","kr":"맛있는"},{"es":"demasiado","kr":"너무 많은; 지나치게"},{"es":"demás","kr":"다른, 그 밖의"},{"es":"dentro","kr":"안으로, 속으로, 안에, 속에"},{"es":"depender","kr":"~에 달려있다, 종속되다"},{"es":"dependiente","kr":"의존하는; 점원"},{"es":"deporte","kr":"스포츠, 운동"},{"es":"deportista","kr":"운동선수"},{"es":"deportivo","kr":"스포츠의"},{"es":"derecho","kr":"똑바른, 오른쪽의; 똑바로, 곧장; 권리, 법률"},{"es":"desagradable","kr":"불쾌한"},{"es":"desayunar","kr":"아침밥을 먹다"},{"es":"desayuno","kr":"아침식사"},{"es":"descansar","kr":"쉬다, 휴식하다, 기대고 있다"},{"es":"descanso","kr":"쉼, 휴식"},{"es":"desconocido","kr":"모르는"},{"es":"descubrimiento","kr":"발견"},{"es":"desde","kr":"-부터, -이래"},{"es":"desear","kr":"원하다, 탐내다, 바라다"},{"es":"desempleo","kr":"실업"},{"es":"desfile","kr":"행렬"},{"es":"despacho","kr":"사무실"},{"es":"despertar","kr":"잠을 깨우다, 눈뜨게 하다; (재귀형) 잠에서 깨다"},{"es":"desplazamiento","kr":"이동, 이전"},{"es":"después","kr":"~한 후에, 뒤에, 그 다음에"},{"es":"destacar","kr":"두드러지게 하다"},{"es":"destinar","kr":"임명하다, 할당하다"},{"es":"destino","kr":"운명, 목적지"},{"es":"detrás","kr":"뒤에, 뒤에서"},{"es":"diagnosticar","kr":"증상을 보이다"},{"es":"dialecto","kr":"사투리, 방언"},{"es":"dibujo","kr":"그림"},{"es":"diciembre","kr":"12월"},{"es":"diente","kr":"이, 치아"},{"es":"diferencia","kr":"차이"},{"es":"diferente","kr":"다른"},{"es":"difícil","kr":"어려운"},{"es":"dinero","kr":"돈"},{"es":"dios","kr":"신; Dios 유일신, 하나님"},{"es":"dirección","kr":"방향, 지휘, 주소"},{"es":"disculpar","kr":"용서하다"},{"es":"disfrutar","kr":"즐기다, 만끽하다"},{"es":"diversidad","kr":"다양(성)"},{"es":"diversión","kr":"기분전환, 오락"},{"es":"diverso","kr":"다양한"},{"es":"divertido","kr":"즐겁게 하는, 유쾌한"},{"es":"divertir","kr":"즐겁게 하다"},{"es":"dividir","kr":"나누다"},{"es":"divorciado","kr":"이혼한"},{"es":"diálogo","kr":"대화, 회화"},{"es":"doctor","kr":"박사, 의사"},{"es":"documento","kr":"서류"},{"es":"doler","kr":"아프다, 마음 아프게 하다"},{"es":"dolor","kr":"고통, 아픔"},{"es":"domingo","kr":"일요일"},{"es":"dominio","kr":"지배, 통치, 영토"},{"es":"donde","kr":"~곳에"},{"es":"dormir","kr":"재우다, 잠들게 하다; 잠자다"},{"es":"dormitorio","kr":"침실"},{"es":"ducha","kr":"샤워"},{"es":"duchar","kr":"샤워시키다; (재귀형) 샤워하다"},{"es":"ducharse","kr":"샤워하다"},{"es":"duda","kr":"의심, 의문"},{"es":"dueño","kr":"주인"},{"es":"dulce","kr":"달콤한, 맛이 단; 맛이 단 것"},{"es":"durante","kr":"~동안에"},{"es":"duro","kr":"견고한, 혹독한, 딱딱한"},{"es":"día","kr":"날, 일, 하루"},{"es":"dónde","kr":"어디, 어디에, 어디로"},{"es":"echar","kr":"던지다, 붓다, 쏟다"},{"es":"ecológico","kr":"환경의"},{"es":"economista","kr":"경제학자, 경제 전문가"},{"es":"económico","kr":"경제의, 경제적인"},{"es":"edad","kr":"나이"},{"es":"edificio","kr":"건물, 빌딩"},{"es":"editorial","kr":"사설"},{"es":"educación","kr":"교육"},{"es":"efectivo","kr":"유효한, 효과적인; 현금"},{"es":"ejemplo","kr":"예, 본보기"},{"es":"ejercicio","kr":"연습, 연습문제"},{"es":"el","kr":"남성단수 정관사"},{"es":"elaborar","kr":"가공하다, 정성들여 만들다"},{"es":"electrónico","kr":"전자공학의"},{"es":"elefante","kr":"코끼리"},{"es":"elegante","kr":"우아한, 품위 있는"},{"es":"elegir","kr":"고르다"},{"es":"ella","kr":"그녀"},{"es":"embotellamiento","kr":"병목현상"},{"es":"emocional","kr":"감정적, 감정적"},{"es":"emocionalmente","kr":"감성적으로, 감정적으로"},{"es":"emocionante","kr":"감동적인"},{"es":"emparejar","kr":"짝을 짓다"},{"es":"empezar","kr":"시작하다; 시작되다"},{"es":"empleado","kr":"고용된; 직원, 점원"},{"es":"empresa","kr":"회사, 기획"},{"es":"en","kr":"~에, ~위에, ~내에"},{"es":"encantado","kr":"매우 만족스러운, 매혹된"},{"es":"encantar","kr":"현혹시키다, 매혹시키다"},{"es":"encargar","kr":"맡기다"},{"es":"encierro","kr":"소몰이 행사"},{"es":"encima","kr":"위에, 그 위에"},{"es":"enclave","kr":"다른 나라에 있는 (자국) 영토"},{"es":"encontrar","kr":"찾다, 발견하다"},{"es":"encuentro","kr":"만남, 발견"},{"es":"encuesta","kr":"설문조사"},{"es":"enemigo","kr":"적"},{"es":"enero","kr":"1월, 정월"},{"es":"enfermedad","kr":"질병"},{"es":"enfermero","kr":"간호사"},{"es":"enfermo","kr":"아픈; 환자"},{"es":"enfrentar","kr":"직면하다, 마주치다"},{"es":"enfrente","kr":"앞에"},{"es":"enigma","kr":"수수께끼"},{"es":"enorme","kr":"거대한"},{"es":"ensalada","kr":"샐러드"},{"es":"enseguida","kr":"당장에, 즉각"},{"es":"enseñar","kr":"가르치다, 교육하다"},{"es":"entender","kr":"이해하다"},{"es":"entidad","kr":"기관, 단체"},{"es":"entonces","kr":"그렇다면, 그래서"},{"es":"entrada","kr":"입구, 입장권"},{"es":"entrar","kr":"들어가다, 참가하다, 입회하다"},{"es":"entre","kr":"-의 사이에, -의 사이에서"},{"es":"entrevista","kr":"회견, 회담, 인터뷰"},{"es":"entrevistador","kr":"회견자, 면담자"},{"es":"enviar","kr":"보내다"},{"es":"envidiar","kr":"부러워하다"},{"es":"equipo","kr":"팀"},{"es":"equivalente","kr":"동등한, 동등한 가치의"},{"es":"equivocado","kr":"실수한, 잘못한"},{"es":"error","kr":"실수"},{"es":"escena","kr":"장면"},{"es":"escribir","kr":"쓰다, 필기하다; 편지를 쓰다"},{"es":"escrito","kr":"써진, 쓰인"},{"es":"escritor","kr":"작가"},{"es":"escritorio","kr":"책상"},{"es":"escuchar","kr":"주의 깊게 듣다, 귀담아 듣다, 경청하다"},{"es":"escuela","kr":"학교"},{"es":"ese","kr":"그, 그런; 그 것"},{"es":"esfuerzo","kr":"노력"},{"es":"eso","kr":"그것; a eso de 약, ~경에, por ~ 그래서"},{"es":"espalda","kr":"등"},{"es":"español","kr":"스페인의; 스페인 사람; 스페인어"},{"es":"especialidad","kr":"전공"},{"es":"especialmente","kr":"특히"},{"es":"espectáculo","kr":"볼거리"},{"es":"espejo","kr":"거울"},{"es":"esperar","kr":"기다리다, 기대하다, 희망하다, 바라다"},{"es":"espina","kr":"가시, 척추"},{"es":"esposa","kr":"부인, 아내"},{"es":"esposo","kr":"남편, 아내"},{"es":"esquiar","kr":"스키를 타다"},{"es":"esquina","kr":"구석, 모퉁이"},{"es":"esquí","kr":"스키"},{"es":"establecer","kr":"만들다, 설립하다"},{"es":"estacionar","kr":"주차하다"},{"es":"estación","kr":"계절, 시기, 역, 터미널"},{"es":"estadio","kr":"경기장"},{"es":"estado","kr":"국가, 정부, 상태"},{"es":"estadounidense","kr":"미국 사람"},{"es":"estantería","kr":"선반, 찬장"},{"es":"estar","kr":"~이다, 있다, ~상태에 있다"},{"es":"estatus","kr":"지위, 신분, 상태"},{"es":"este","kr":"이, 이러한; 이 것, 후자"},{"es":"esto","kr":"이 것, 이 일"},{"es":"estrella","kr":"별"},{"es":"estreno","kr":"개봉, 초연"},{"es":"estresado","kr":"스트레스를 받은"},{"es":"estricto","kr":"엄격한"},{"es":"estudiante","kr":"학생"},{"es":"estudiar","kr":"공부하다, 연구하다; 공부하다"},{"es":"estudioso","kr":"공부를 열심히 하는"},{"es":"estupendo","kr":"훌륭한, 멋진, 근사한"},{"es":"estómago","kr":"위장, 배"},{"es":"etnia","kr":"민족"},{"es":"euro","kr":"유로(화폐 단위)"},{"es":"exactitud","kr":"정확(성)"},{"es":"exacto","kr":"정확한, 정밀한"},{"es":"examen","kr":"시험, 조사"},{"es":"excelente","kr":"뛰어난, 훌륭한"},{"es":"excursión","kr":"소풍"},{"es":"excusa","kr":"변명, 구실"},{"es":"existencia","kr":"존재"},{"es":"experiencia","kr":"경험"},{"es":"explicar","kr":"설명하다"},{"es":"exposición","kr":"표명, 출품, 진열, 전시회"},{"es":"expresar","kr":"표현하다"},{"es":"expresión","kr":"표현"},{"es":"exterior","kr":"외부의, 대로에 면한"},{"es":"extranjero","kr":"외국인; 외국의"},{"es":"extrañar","kr":"그리워하다"},{"es":"falda","kr":"치마, 스커트"},{"es":"falso","kr":"거짓의"},{"es":"faltar","kr":"없다, 부족하다"},{"es":"fama","kr":"명성"},{"es":"familia","kr":"가족"},{"es":"familiar","kr":"가족의, 친숙한"},{"es":"famoso","kr":"유명한"},{"es":"fan","kr":"팬"},{"es":"fantástico","kr":"아주 멋진, 환상적인, 기발한"},{"es":"farmacia","kr":"약국"},{"es":"fascinar","kr":"매혹시키다"},{"es":"favor","kr":"부탁, 호의"},{"es":"favorito","kr":"마음에 드는, 아주 좋아하는"},{"es":"febrero","kr":"2월"},{"es":"fecha","kr":"날짜"},{"es":"felicidad","kr":"행복"},{"es":"feliz","kr":"행복한"},{"es":"femenino","kr":"여성의"},{"es":"fenomenal","kr":"굉장한, 훌륭한"},{"es":"feo","kr":"추한, 못생긴"},{"es":"feria","kr":"축제, 큰 장"},{"es":"ferrocarril","kr":"철도"},{"es":"festivo","kr":"축제의"},{"es":"ficha","kr":"기록카드"},{"es":"fiebre","kr":"열"},{"es":"fiesta","kr":"축제, 제전"},{"es":"fijo","kr":"고정된"},{"es":"filete","kr":"스테이크"},{"es":"fin","kr":"끝, 마지막, 목적"},{"es":"final","kr":"끝, 결말; 결승전; 마지막의"},{"es":"finalmente","kr":"마지막으로"},{"es":"firmar","kr":"서명하다"},{"es":"flamenco","kr":"플라멩코"},{"es":"flauta","kr":"플루트"},{"es":"flor","kr":"꽃"},{"es":"florería","kr":"꽃집"},{"es":"fondo","kr":"바닥, 깊이, 자금"},{"es":"forma","kr":"형태"},{"es":"formal","kr":"형식의, 형식적인"},{"es":"foto","kr":"사진"},{"es":"fotógrafo","kr":"사진사"},{"es":"franco","kr":"솔직한, 자유로운"},{"es":"francés","kr":"프랑스 사람; 프랑스어"},{"es":"frecuencia","kr":"빈도, 빈번함"},{"es":"frecuente","kr":"잦은"},{"es":"fregadero","kr":"설거지통, 싱크대"},{"es":"fregar","kr":"문질러 씻다"},{"es":"frente","kr":"이마 정면"},{"es":"fresco","kr":"선선함, 신선한, 싱싱한"},{"es":"frigorífico","kr":"냉장고"},{"es":"frito","kr":"튀긴"},{"es":"fruta","kr":"과일"},{"es":"frío","kr":"추위, 추운, 차가운"},{"es":"fuera","kr":"바깥에"},{"es":"fuerte","kr":"강한"},{"es":"fábrica","kr":"공장"},{"es":"fácil","kr":"쉬운"},{"es":"físico","kr":"물질의, 물리학의"},{"es":"gafa","kr":"안경"},{"es":"gallina","kr":"암탉"},{"es":"garganta","kr":"목구멍"},{"es":"gas","kr":"기체, 가스"},{"es":"gato","kr":"고양이"},{"es":"gazpacho","kr":"가스파초"},{"es":"general","kr":"일반적인, 전반적인"},{"es":"gente","kr":"사람들"},{"es":"girar","kr":"돌다, 회전하다"},{"es":"gordo","kr":"뚱뚱한"},{"es":"gorra","kr":"모자"},{"es":"gracia","kr":"우아, 기품; () 감사합니다"},{"es":"grado","kr":"정도, 단계"},{"es":"gramática","kr":"문법"},{"es":"grande","kr":"커다란, 훌륭한, 위대한"},{"es":"gripe","kr":"유행성 감기"},{"es":"guante","kr":"장갑"},{"es":"guapo","kr":"잘 생긴"},{"es":"guerra","kr":"전쟁"},{"es":"guitarra","kr":"기타"},{"es":"guitarrista","kr":"기타리스트"},{"es":"gustar","kr":"~의 마음에 들다"},{"es":"gusto","kr":"취향, 기쁨"},{"es":"guía","kr":"안내; 안내인"},{"es":"haber","kr":"~이 있다"},{"es":"habitación","kr":"방"},{"es":"habitante","kr":"주민"},{"es":"habitual","kr":"습관적인"},{"es":"hablador","kr":"수다쟁이"},{"es":"hablar","kr":"말하다"},{"es":"hacer","kr":"하다, 만들다"},{"es":"hacia","kr":"~향해서, ~쪽으로, ~경/쯤"},{"es":"hallar","kr":"발견하다"},{"es":"hambre","kr":"허기, 배고픔"},{"es":"harina","kr":"가루"},{"es":"hasta","kr":"~까지"},{"es":"hay","kr":"~이 있다"},{"es":"hecho","kr":"~로 된"},{"es":"helado","kr":"아이스크림"},{"es":"hermano","kr":"형제, 자매"},{"es":"hermoso","kr":"아름다운, 예쁜, 고운"},{"es":"herramienta","kr":"연장, 도구"},{"es":"hielo","kr":"얼음"},{"es":"hijo","kr":"아들, 자식"},{"es":"hispanidad","kr":"스페인어권 나라, 스페인어권 문화"},{"es":"hispanismo","kr":"스페인어의 독특한 표현, 차용된 스페인어"},{"es":"hispano","kr":"스페인어권의; 스페인어권 사람"},{"es":"hispanoamericano","kr":"라틴아메리카 사람"},{"es":"hispánico","kr":"스페인어권의"},{"es":"historia","kr":"이야기, 역사"},{"es":"histórico","kr":"역사적인"},{"es":"hoja","kr":"잎, 종이"},{"es":"hola","kr":"안녕."},{"es":"hombre","kr":"사람, 남자, 어른"},{"es":"hombro","kr":"어깨"},{"es":"honor","kr":"명예"},{"es":"hora","kr":"시간, 시각"},{"es":"horario","kr":"일정, 시간표"},{"es":"horizontal","kr":"수평선의"},{"es":"hormona","kr":"호르몬"},{"es":"hormonal","kr":"호르몬의"},{"es":"horno","kr":"화덕"},{"es":"horror","kr":"공포"},{"es":"hospital","kr":"병원"},{"es":"hotel","kr":"호텔"},{"es":"hoy","kr":"오늘"},{"es":"hueco","kr":"구멍"},{"es":"huevo","kr":"달걀"},{"es":"humanidad","kr":"인류"},{"es":"humilde","kr":"겸손한, 비천한"},{"es":"humor","kr":"기분"},{"es":"hábito","kr":"습관"},{"es":"húmedo","kr":"습한, 축축한"},{"es":"ibérico","kr":"이베리아 사람"},{"es":"icono","kr":"성상(聖像), 아이콘"},{"es":"idea","kr":"사상, 관념, 생각"},{"es":"identificación","kr":"신원 증명"},{"es":"identificar","kr":"확인하다, 동일시하다"},{"es":"idioma","kr":"언어"},{"es":"iglesia","kr":"교회"},{"es":"igual","kr":"똑같은; 똑같이"},{"es":"imaginar","kr":"상상하다"},{"es":"impacto","kr":"충격, 영향(력)"},{"es":"importante","kr":"소중한, 중요한"},{"es":"importar","kr":"~에게 중요하다, 신경 쓰이다"},{"es":"incluido","kr":"포함된"},{"es":"incluir","kr":"포함시키다"},{"es":"incluso","kr":"~까지, 포함해서"},{"es":"incompleto","kr":"불완전한"},{"es":"incorporar","kr":"합병하다, 합체시키다, 합체되다, 가입하다"},{"es":"increíble","kr":"믿을 수 없는"},{"es":"incómodo","kr":"불편한, 불쾌한"},{"es":"independiente","kr":"독립적인"},{"es":"indicación","kr":"표시, 표지"},{"es":"indicar","kr":"지적하다, 가리키다"},{"es":"indoeuropeo","kr":"인도 유럽 어의"},{"es":"indudablemente","kr":"의심할 여지없이"},{"es":"infancia","kr":"유년기"},{"es":"infantil","kr":"유아의"},{"es":"inferior","kr":"열등한, 하위의"},{"es":"información","kr":"정보"},{"es":"informal","kr":"형식을 따지지 않는"},{"es":"informar","kr":"알리다"},{"es":"informe","kr":"알림, 보고서"},{"es":"ingeniero","kr":"기술자"},{"es":"inglés","kr":"영국 사람; 영어"},{"es":"ingrediente","kr":"재료"},{"es":"iniciar","kr":"시작하다"},{"es":"inmediatamente","kr":"즉시"},{"es":"inmediato","kr":"직접의, 즉시의"},{"es":"instituto","kr":"연구소, 협회, 단체"},{"es":"instructor","kr":"교관"},{"es":"integrar","kr":"통합하다, 동화시키다, 통합되다, 동화되다"},{"es":"inteligente","kr":"지식이 있는, 총명한"},{"es":"interesante","kr":"흥미 있는, 재미있는"},{"es":"interesar","kr":"관심을 끌다, 흥미를 가지게 하다"},{"es":"interior","kr":"내부의"},{"es":"internacional","kr":"국제적인"},{"es":"internet","kr":"인터넷"},{"es":"interés","kr":"흥미, 관심"},{"es":"introvertido","kr":"내성적인"},{"es":"inusual","kr":"쓸모없는"},{"es":"invierno","kr":"겨울"},{"es":"invitar","kr":"초대하다"},{"es":"ir","kr":"가다"},{"es":"izquierda","kr":"왼쪽"},{"es":"izquierdo","kr":"왼쪽의; 왼쪽"},{"es":"jabón","kr":"비누"},{"es":"jamás","kr":"결코 ~이 아니다"},{"es":"jamón","kr":"하몬"},{"es":"japonés","kr":"일본사람; 일본어"},{"es":"jardín","kr":"정원"},{"es":"jarra","kr":"물병"},{"es":"jefe","kr":"우두머리, 상관"},{"es":"jengibre","kr":"생강"},{"es":"jirafa","kr":"기린"},{"es":"joven","kr":"젊은; 젊은이"},{"es":"juego","kr":"놀이, 게임; 세트"},{"es":"jueves","kr":"목요일"},{"es":"jugador","kr":"경기하는; 선수"},{"es":"jugar","kr":"놀다, 장난하다, 경기를 하다, 도박하다"},{"es":"jugoso","kr":"즙이 있는"},{"es":"juguete","kr":"장난감"},{"es":"julio","kr":"7월"},{"es":"junio","kr":"6월"},{"es":"junto","kr":"뭉친, 연합한; 근처에, 가까이에"},{"es":"justo","kr":"공정한; 바로, 곧"},{"es":"kilo","kr":"킬로"},{"es":"kilogramo","kr":"킬로그램"},{"es":"koala","kr":"코알라"},{"es":"la","kr":"여성단수 정관사, 그녀를, 그것을"},{"es":"laboral","kr":"노동의"},{"es":"laboratorio","kr":"실험실"},{"es":"lado","kr":"옆, 측면"},{"es":"lago","kr":"호수"},{"es":"largo","kr":"긴"},{"es":"latino","kr":"스페인어를 모국어로 사용하는 라틴아메리카 사람"},{"es":"latinoamericano","kr":"라틴 아메리카 사람"},{"es":"lavabo","kr":"세면대"},{"es":"lavadora","kr":"세탁기"},{"es":"lavar","kr":"씻기다, (재귀형) 씻다"},{"es":"le","kr":"그에게, 그녀에게, 당신에게"},{"es":"lección","kr":"과, 강의"},{"es":"leche","kr":"우유"},{"es":"lechuga","kr":"상추"},{"es":"lectura","kr":"독서, 독해"},{"es":"leer","kr":"읽다, 독서하다"},{"es":"lejos","kr":"멀리"},{"es":"lengua","kr":"언어, 혀"},{"es":"lento","kr":"느린; 느리게"},{"es":"letra","kr":"글자, 문자, 가사"},{"es":"levantar","kr":"일으키다; (재귀형) 일어나다"},{"es":"levantarse","kr":"일어나다"},{"es":"leve","kr":"가벼운, 사소한"},{"es":"libre","kr":"자유로운, ~이 없는, 무료의"},{"es":"librería","kr":"서점"},{"es":"libro","kr":"책"},{"es":"ligero","kr":"가벼운"},{"es":"limpiador","kr":"청소부"},{"es":"limpiar","kr":"깨끗하게 하다"},{"es":"limpieza","kr":"청소"},{"es":"lindo","kr":"예쁜"},{"es":"lingüístico","kr":"언어학적"},{"es":"liso","kr":"무늬 없는"},{"es":"lista","kr":"준비된, 영리한"},{"es":"listo","kr":"영리한, 기민한, 준비된"},{"es":"llamar","kr":"부르다, 전화하다, (재귀형) 이름이 ~이다"},{"es":"llave","kr":"열쇠"},{"es":"llegada","kr":"도착"},{"es":"llegar","kr":"도착하다"},{"es":"lleno","kr":"가득 찬"},{"es":"llevar","kr":"지니다, 가지고 가다, 입고 다니다"},{"es":"llover","kr":"비가 내리다"},{"es":"lluvia","kr":"비"},{"es":"lo","kr":"그를, 그것을"},{"es":"loco","kr":"미친"},{"es":"lograr","kr":"달성하다"},{"es":"lotería","kr":"복권"},{"es":"luego","kr":"후에, 뒤에; 그러므로, 그러기에"},{"es":"lugar","kr":"자리, 위치"},{"es":"lujoso","kr":"화려한"},{"es":"lunes","kr":"월요일"},{"es":"luz","kr":"빛"},{"es":"lámpara","kr":"램프"},{"es":"lápiz","kr":"연필"},{"es":"lástima","kr":"유감"},{"es":"línea","kr":"선(線)"},{"es":"madera","kr":"목재, 나무"},{"es":"madre","kr":"어머니"},{"es":"madrileño","kr":"마드리드 사람"},{"es":"majo","kr":"매력적인; 미남, 미녀"},{"es":"mal","kr":"나쁘게; 악"},{"es":"maleta","kr":"여행가방, 트렁크"},{"es":"malo","kr":"나쁜, 아픈"},{"es":"mami","kr":"엄마"},{"es":"mamá","kr":"엄마"},{"es":"manchego","kr":"라만차 지방의"},{"es":"mandar","kr":"보내다, 명령하다"},{"es":"manera","kr":"방법"},{"es":"mano","kr":"손"},{"es":"mantener","kr":"유지하다"},{"es":"manutención","kr":"부양, 양육"},{"es":"manzana","kr":"사과"},{"es":"mapa","kr":"지도"},{"es":"mar","kr":"바다"},{"es":"maravilloso","kr":"경이적인, 멋진, 굉장한, 불가사의한"},{"es":"marcar","kr":"표시하다"},{"es":"marear","kr":"움직이다, 화나게 하다, 귀찮게 하다"},{"es":"mariachi","kr":"마리아치"},{"es":"marido","kr":"남편"},{"es":"marisco","kr":"조개, 해산물"},{"es":"marrón","kr":"밤색의; 밤색"},{"es":"martes","kr":"화요일"},{"es":"marzo","kr":"3월"},{"es":"mascota","kr":"애완 동물"},{"es":"matador","kr":"죽이는; 살해자; 마타도르"},{"es":"matar","kr":"죽이다"},{"es":"matemática","kr":"수학"},{"es":"matemáticas","kr":"수학"},{"es":"materno","kr":"어머니의"},{"es":"matrimonio","kr":"결혼, 결혼식"},{"es":"mayo","kr":"5월"},{"es":"mayor","kr":"더 큰, 더 나이가 많은"},{"es":"mayoría","kr":"대부분"},{"es":"maíz","kr":"옥수수"},{"es":"mañana","kr":"내일, 오전, 아침"},{"es":"me","kr":"나에게, 나를"},{"es":"medianoche","kr":"자정"},{"es":"medicamento","kr":"약"},{"es":"medio","kr":"중간의, 절반의; 중간, 수단"},{"es":"mediodía","kr":"정오"},{"es":"mejilla","kr":"뺨, 볼"},{"es":"mejor","kr":"더 좋은; 더 좋게, 더 낫게"},{"es":"mejorar","kr":"건강이 회복되어 가다, 개선하다"},{"es":"melodía","kr":"멜로디"},{"es":"melón","kr":"멜론, 참외"},{"es":"menina","kr":"시녀"},{"es":"menor","kr":"더 어린"},{"es":"menos","kr":"보다 덜, 더 적게; 더 적은"},{"es":"mensaje","kr":"메시지"},{"es":"mentiroso","kr":"거짓말쟁이, 거짓말을 잘하는"},{"es":"menudo","kr":"작은, 정확한; a - 자주"},{"es":"menú","kr":"메뉴"},{"es":"mercader","kr":"상인, 장수"},{"es":"mercado","kr":"시장"},{"es":"mes","kr":"달, 개월"},{"es":"mesa","kr":"탁자, 식탁"},{"es":"mesilla","kr":"작은 탁자"},{"es":"metro","kr":"전철, 지하철, 미터"},{"es":"mexicano","kr":"멕시코 사람"},{"es":"mi","kr":"나의"},{"es":"microondas","kr":"전자레인지"},{"es":"miel","kr":"꿀"},{"es":"miembro","kr":"구성원, 멤버"},{"es":"mientras","kr":"그러는 사이에, ~하는 동안"},{"es":"miga","kr":"빵부스러기"},{"es":"militar","kr":"군사적, 군인의"},{"es":"minoría","kr":"소수"},{"es":"minuto","kr":"분"},{"es":"mirar","kr":"보다, 바라보다; 향해 있다"},{"es":"mismo","kr":"같은, 동일한, 자신의"},{"es":"misterio","kr":"신비, 수수께끼, 불가사의"},{"es":"mitad","kr":"반"},{"es":"mixto","kr":"혼합된"},{"es":"miércoles","kr":"수요일"},{"es":"mochila","kr":"배낭, 책가방"},{"es":"modalidad","kr":"양상"},{"es":"modelo","kr":"모형, 모델"},{"es":"moderno","kr":"현대적인"},{"es":"modificación","kr":"변화, 수정, 변경"},{"es":"modo","kr":"방법"},{"es":"momento","kr":"순간, 시기, 때"},{"es":"moneda","kr":"동전"},{"es":"montar","kr":"타다, 오르다"},{"es":"montaña","kr":"산"},{"es":"monumento","kr":"기념비, 기념물"},{"es":"moreno","kr":"가무잡잡한, 갈색의"},{"es":"morir","kr":"죽다"},{"es":"mosca","kr":"파리"},{"es":"mosquito","kr":"모기"},{"es":"mostrador","kr":"진열대"},{"es":"mostrar","kr":"보여주다"},{"es":"moto","kr":"오토바이"},{"es":"muchacho","kr":"소년, 청년"},{"es":"mucho","kr":"많은; 많이"},{"es":"mudanza","kr":"이사"},{"es":"mueble","kr":"가구"},{"es":"muela","kr":"어금니"},{"es":"muerto","kr":"죽은, 사망한"},{"es":"mujer","kr":"여자, 아내"},{"es":"mundial","kr":"세계의"},{"es":"mundo","kr":"세계, 세상, 지구"},{"es":"mural","kr":"벽의; 벽화"},{"es":"museo","kr":"박물관, 미술관"},{"es":"musical","kr":"음악의, 뮤지컬"},{"es":"musulmán","kr":"무슬림의, 이슬람교의"},{"es":"muy","kr":"매우, 무척, 대단히"},{"es":"muñeca","kr":"인형, 손목"},{"es":"más","kr":"더; ~ o menos 약, 대략"},{"es":"médico","kr":"의학의; 의사"},{"es":"mí","kr":"나(에게, 를 위해)"},{"es":"mío","kr":"나의; 나의 것"},{"es":"móvil","kr":"움직일 수 있는; 핸드폰"},{"es":"música","kr":"음악"},{"es":"músico","kr":"음악가"},{"es":"nacer","kr":"태어나다"},{"es":"nacido","kr":"태어난"},{"es":"nacional","kr":"국가의, 국민의"},{"es":"nacionalidad","kr":"국적"},{"es":"nada","kr":"아무 것(도 아니다)"},{"es":"nadar","kr":"수영하다"},{"es":"nadie","kr":"아무도"},{"es":"naranja","kr":"오렌지"},{"es":"nariz","kr":"코"},{"es":"natación","kr":"수영"},{"es":"nativo","kr":"토착민의; 현지인"},{"es":"navegar","kr":"항해하다, 웹서핑하다"},{"es":"necesario","kr":"필요한"},{"es":"necesidad","kr":"필요(성)"},{"es":"necesitar","kr":"필요로 하다"},{"es":"negro","kr":"검은, 어두운; 검정"},{"es":"nervioso","kr":"긴장한, 신경질적인"},{"es":"nevar","kr":"눈이 내리다"},{"es":"nevera","kr":"냉장고"},{"es":"ni","kr":"~도 아니다"},{"es":"niebla","kr":"안개"},{"es":"nieto","kr":"손자, 손녀"},{"es":"nieve","kr":"눈(雪)"},{"es":"ninguno","kr":"아무 것도/누구도 ~아니다"},{"es":"ninot","kr":"큰 인형"},{"es":"niñez","kr":"어린 시절"},{"es":"niño","kr":"어린아이"},{"es":"no","kr":"아니, 아니오"},{"es":"noche","kr":"밤"},{"es":"nochebuena","kr":"크리스마스 이브"},{"es":"nombre","kr":"이름, 성명, 명칭"},{"es":"normal","kr":"보통의, 정상적인"},{"es":"normalmente","kr":"일반적으로"},{"es":"norte","kr":"북쪽"},{"es":"nos","kr":"우리들을, 우리들에게"},{"es":"nosotros","kr":"우리들은"},{"es":"nota","kr":"기록, 메모, 성적"},{"es":"noticia","kr":"소식, 기사, 뉴스"},{"es":"novela","kr":"소설"},{"es":"noviembre","kr":"11월"},{"es":"novio","kr":"남자 친구, 연인"},{"es":"nube","kr":"구름"},{"es":"nublado","kr":"구름 낀"},{"es":"nuestro","kr":"우리들의"},{"es":"nuevo","kr":"새로운"},{"es":"numeroso","kr":"수많은"},{"es":"nunca","kr":"결코 -이 아니다"},{"es":"nómada","kr":"유목민"},{"es":"núcleo","kr":"핵, 중심지"},{"es":"número","kr":"숫자, 수, 수량, 번호, 번지, 크기, 사이즈"},{"es":"o","kr":"또는"},{"es":"objeto","kr":"물건"},{"es":"obra","kr":"작품, 일, 공사"},{"es":"observar","kr":"관찰하다, 지키다"},{"es":"ocasionar","kr":"원인이 되다, 야기하다"},{"es":"octubre","kr":"10월"},{"es":"ocupación","kr":"직업"},{"es":"ocupado","kr":"바쁜, 점령된, 통화중인"},{"es":"ocurrir","kr":"일어나다, 발생하다"},{"es":"odiar","kr":"증오하다, 미워하다"},{"es":"odontólogo","kr":"치과의사"},{"es":"oeste","kr":"서쪽"},{"es":"oficial","kr":"공식적인"},{"es":"oficina","kr":"사무실"},{"es":"oficinista","kr":"회사원"},{"es":"ofrecer","kr":"제공하다"},{"es":"ojo","kr":"눈(眼)"},{"es":"olvidar","kr":"잊어버리다"},{"es":"opcionalmente","kr":"선택적으로"},{"es":"opción","kr":"선택"},{"es":"opinar","kr":"의견을 가지다"},{"es":"oportunidad","kr":"기회"},{"es":"orden","kr":"순서, 질서 명령"},{"es":"ordenador","kr":"컴퓨터"},{"es":"ordenar","kr":"명령하다, 정리하다"},{"es":"ordinal","kr":"서수"},{"es":"oreja","kr":"귀"},{"es":"organización","kr":"단체, 조직"},{"es":"organizar","kr":"조직하다"},{"es":"oriente","kr":"동쪽, 동방"},{"es":"origen","kr":"근원, 기원"},{"es":"original","kr":"기원의, 근원의"},{"es":"oro","kr":"금"},{"es":"os","kr":"너희들을, 너희들에게"},{"es":"otoño","kr":"가을"},{"es":"otro","kr":"다른, 별개의"},{"es":"oír","kr":"듣다"},{"es":"padre","kr":"아버지"},{"es":"paella","kr":"파에야, 해물 쌀 요리"},{"es":"pagano","kr":"이교도의"},{"es":"pagar","kr":"지불하다"},{"es":"paisaje","kr":"풍경"},{"es":"palabra","kr":"말, 단어"},{"es":"palacio","kr":"궁, 궁전"},{"es":"panadería","kr":"빵집"},{"es":"pantalla","kr":"화면"},{"es":"pantalón","kr":"바지"},{"es":"papel","kr":"종이, 역할"},{"es":"papelería","kr":"문구점"},{"es":"papi","kr":"아빠"},{"es":"papá","kr":"아빠"},{"es":"paquete","kr":"소포, 꾸러미"},{"es":"par","kr":"똑같은, 동일한, 짝수의"},{"es":"para","kr":"~을 위하여, ~에게, ~향해서, ~의 견해로, ~까지"},{"es":"parada","kr":"정지, 정류장"},{"es":"paraguas","kr":"우산"},{"es":"parar","kr":"멈추다, 세우다"},{"es":"parecer","kr":"-인 것 같다, -로 보이다"},{"es":"pared","kr":"벽"},{"es":"pareja","kr":"커플, 파트너"},{"es":"parque","kr":"공원"},{"es":"parte","kr":"측, 편, 부분"},{"es":"participar","kr":"참석하다"},{"es":"particular","kr":"특별한, 독특한, 개인의"},{"es":"partido","kr":"경기, 당"},{"es":"partir","kr":"출발하다, 떠나다"},{"es":"pasado","kr":"a 지난; 과거"},{"es":"pasar","kr":"지나가다, 건네주다, 보내다, ~이 일어나다"},{"es":"pasear","kr":"산책하다"},{"es":"paseo","kr":"산책"},{"es":"pasillo","kr":"통로, 복도"},{"es":"pastilla","kr":"알약"},{"es":"patata","kr":"감자"},{"es":"paterno","kr":"아버지의"},{"es":"patio","kr":"안뜰"},{"es":"patito","kr":"새끼오리"},{"es":"patrimonio","kr":"상속 재산, 유산, 문화재"},{"es":"patrón","kr":"보호자, 후원자"},{"es":"país","kr":"국가, 나라"},{"es":"pañuelo","kr":"손수건, 스카프"},{"es":"pecho","kr":"가슴"},{"es":"pedir","kr":"주문하다, 요구하다"},{"es":"pegar","kr":"붙이다, 때리다"},{"es":"peinar","kr":"빗다, 빗질하다"},{"es":"peinarse","kr":"머리를 빗다"},{"es":"peine","kr":"빗"},{"es":"pelo","kr":"머리카락, 털"},{"es":"peluquero","kr":"미용사"},{"es":"peluquería","kr":"미용실"},{"es":"película","kr":"영화"},{"es":"pena","kr":"형벌, 고통, 슬픔, 괴로움"},{"es":"pendiente","kr":"귀걸이"},{"es":"pensar","kr":"생각하다"},{"es":"peor","kr":"더 나쁜"},{"es":"pequeño","kr":"작은, 사소한, 어린"},{"es":"pera","kr":"배(과일)"},{"es":"perdedor","kr":"패자"},{"es":"perder","kr":"잃어버리다"},{"es":"perdonar","kr":"용서하다, 면제하다"},{"es":"perezoso","kr":"게으름뱅이, 게으른"},{"es":"perfecto","kr":"완전한"},{"es":"periodista","kr":"신문기자"},{"es":"periódico","kr":"신문"},{"es":"permiso","kr":"허가, 인가"},{"es":"permitir","kr":"허용하다, 허락하다"},{"es":"pero","kr":"그러나"},{"es":"perro","kr":"강아지"},{"es":"persona","kr":"사람"},{"es":"personaje","kr":"인물"},{"es":"personal","kr":"개인의, 사적인; 직원"},{"es":"personalidad","kr":"인격, 개성"},{"es":"pertinente","kr":"적당한, 적절한"},{"es":"pesa","kr":"추, 바벨"},{"es":"pesado","kr":"무거운"},{"es":"pescado","kr":"생선, 생선요리"},{"es":"pescar","kr":"낚시질하다"},{"es":"peso","kr":"무게, 화폐단위"},{"es":"pez","kr":"물고기"},{"es":"pianista","kr":"피아니스트"},{"es":"pie","kr":"발"},{"es":"piedra","kr":"돌"},{"es":"pienso","kr":"사료"},{"es":"pierna","kr":"다리"},{"es":"pieza","kr":"조각"},{"es":"pijama","kr":"잠옷"},{"es":"pimiento","kr":"피망"},{"es":"pincho","kr":"꼬치"},{"es":"pintar","kr":"그리다"},{"es":"pintura","kr":"그림, 페인트, 도료"},{"es":"pirámide","kr":"피라미드"},{"es":"piscina","kr":"수영장"},{"es":"piso","kr":"아파트, 층"},{"es":"pizarra","kr":"칠판"},{"es":"planchar","kr":"다림질하다"},{"es":"planeta","kr":"행성"},{"es":"plano","kr":"면, 지도"},{"es":"planta","kr":"층"},{"es":"plata","kr":"은"},{"es":"plato","kr":"접시, 그릇, 요리, 음식"},{"es":"playa","kr":"해변"},{"es":"plaza","kr":"광장, 장소, 자리, 좌석"},{"es":"plátano","kr":"바나나"},{"es":"población","kr":"인구, 주민"},{"es":"pobre","kr":"가난한 사람, 가여운 사람"},{"es":"poco","kr":"조금의, 약간의"},{"es":"poder","kr":"-할 수 있다; 힘, 능력"},{"es":"poesía","kr":"시"},{"es":"pollo","kr":"닭, 병아리"},{"es":"poner","kr":"놓다, 입히다"},{"es":"popular","kr":"인기 있는"},{"es":"popularizar","kr":"대중화시키다, 보급시키다"},{"es":"por","kr":"~때문에, ~의해서, ~을 지나서, ~쪽으로, ~동안, ~무렵, ~대신에"},{"es":"porción","kr":"1인분, 작은 양"},{"es":"porque","kr":"~ 때문에"},{"es":"portátil","kr":"운반할 수 있는"},{"es":"poseer","kr":"소유하다"},{"es":"posible","kr":"할 수 있는, 가능한"},{"es":"posiblemente","kr":"가능하게"},{"es":"postal","kr":"엽서, 우편의"},{"es":"posteriormente","kr":"후에, 나중에"},{"es":"postre","kr":"후식, 디저트"},{"es":"practicar","kr":"실습하다, 연습하다"},{"es":"precio","kr":"가격"},{"es":"precioso","kr":"귀중한, 멋진"},{"es":"preferir","kr":"선호하다, 더 좋아하다"},{"es":"pregunta","kr":"질문"},{"es":"preguntar","kr":"묻다, 물어보다"},{"es":"premio","kr":"상"},{"es":"prender","kr":"붙잡다, 체포하다"},{"es":"preocupar","kr":"걱정시키다"},{"es":"preocuparse","kr":"걱정하다"},{"es":"preparado","kr":"준비된"},{"es":"preparar","kr":"준비하다, 마련하다, 예습하다"},{"es":"presentación","kr":"소개, 제출"},{"es":"presentar","kr":"제출하다, 내놓다, 소개하다"},{"es":"presidente","kr":"대통령"},{"es":"prestación","kr":"봉사, 원조"},{"es":"prestar","kr":"빌려주다"},{"es":"primario","kr":"처음의, 기본적인"},{"es":"primavera","kr":"봄"},{"es":"primero","kr":"첫 번째의, 먼저, 최초로, 우선"},{"es":"primo","kr":"사촌"},{"es":"princesa","kr":"공주"},{"es":"principal","kr":"중요한"},{"es":"princípe","kr":"왕자"},{"es":"prisa","kr":"서두름, 급함"},{"es":"privado","kr":"사설의"},{"es":"probar","kr":"시도하다, 시험하다, 시식하다, 증명하다"},{"es":"problema","kr":"문제"},{"es":"procedencia","kr":"기원, 출처"},{"es":"proceder","kr":"유래하다, 나오다"},{"es":"producir","kr":"생산하다"},{"es":"producto","kr":"제품"},{"es":"profesional","kr":"직업적인"},{"es":"profesión","kr":"직업"},{"es":"profesor","kr":"교사, 교수"},{"es":"programa","kr":"프로그램"},{"es":"pronto","kr":"빠른, 곧, 금방"},{"es":"pronunciar","kr":"발음하다"},{"es":"propio","kr":"고유의, 본래의"},{"es":"proponer","kr":"제안하다"},{"es":"protección","kr":"보호"},{"es":"protectorado","kr":"보호령, 보호국"},{"es":"proteger","kr":"보호하다"},{"es":"proverbio","kr":"속담"},{"es":"provincia","kr":"지방"},{"es":"práctica","kr":"실천, 연습"},{"es":"práctico","kr":"실용적인, 실질적인"},{"es":"príncipe","kr":"왕자"},{"es":"próximo","kr":"인접한, 가까운, 다음의"},{"es":"pueblo","kr":"마을, 국민, 민중"},{"es":"puerta","kr":"문, 출입구"},{"es":"puerto","kr":"항구"},{"es":"pues","kr":"왜냐하면, 그런데, 그래서"},{"es":"puesto","kr":"장소, 노점, 직위"},{"es":"pulsera","kr":"팔찌"},{"es":"punto","kr":"점, 포인트"},{"es":"página","kr":"페이지"},{"es":"pájaro","kr":"새"},{"es":"público","kr":"공적인, 대중"},{"es":"que","kr":"관계대명사"},{"es":"quedar","kr":"있다, 남다, 만나다, 어울리다"},{"es":"quemar","kr":"불태우다"},{"es":"querer","kr":"원하다, 좋아하다"},{"es":"querido","kr":"사랑하는"},{"es":"queso","kr":"치즈"},{"es":"quitar","kr":"제거하다, 옷을 벗다"},{"es":"quitasol","kr":"양산, 파라솔"},{"es":"quién","kr":"누구, 어떤 사람"},{"es":"qué","kr":"무슨, 어떤; 무엇, 무슨 일"},{"es":"ración","kr":"1인분, 분량"},{"es":"radio","kr":"라디오, 라디오 방송"},{"es":"rascacielos","kr":"초고층 건물"},{"es":"rasgo","kr":"특징, 특색"},{"es":"rato","kr":"잠깐"},{"es":"ratón","kr":"쥐"},{"es":"razón","kr":"까닭, 이유, 이성"},{"es":"real","kr":"실제의, 현실의"},{"es":"realización","kr":"실현, 현실(화)"},{"es":"realizar","kr":"실현하다, 실행하다"},{"es":"recetar","kr":"처방하다"},{"es":"rechazar","kr":"거절하다"},{"es":"recibir","kr":"받다, 받아들이다"},{"es":"reciente","kr":"최근의"},{"es":"recién","kr":"최근, 지금 막"},{"es":"recluido","kr":"감금시킨"},{"es":"recomendable","kr":"추천할만한"},{"es":"recomendar","kr":"추천하다"},{"es":"reconocer","kr":"깨닫다, 인지하다"},{"es":"reconquista","kr":"재정복"},{"es":"recordar","kr":"상기하다, 기억하다"},{"es":"recorrer","kr":"돌아다니다"},{"es":"recreo","kr":"놀이, 오락"},{"es":"recto","kr":"곧은, 똑바른"},{"es":"recuadro","kr":"네모진 구획"},{"es":"recuerdo","kr":"기억"},{"es":"redondo","kr":"둥근"},{"es":"reducir","kr":"줄이다, 줄어들다"},{"es":"referente","kr":"지시대상(물)"},{"es":"refresco","kr":"청량 음료수"},{"es":"regadera","kr":"물뿌리개, 살수기"},{"es":"regalar","kr":"선물하다"},{"es":"regalo","kr":"선물"},{"es":"región","kr":"지역"},{"es":"regresar","kr":"돌아가다"},{"es":"reina","kr":"여왕, 왕비"},{"es":"relacionado","kr":"관계된, 관련된"},{"es":"relacionar","kr":"관계가 있다"},{"es":"relación","kr":"관계"},{"es":"reloj","kr":"시계"},{"es":"remedio","kr":"수단, 보호"},{"es":"remuneración","kr":"급여, 보수, 보상"},{"es":"rendición","kr":"항복"},{"es":"repetir","kr":"반복하다"},{"es":"república","kr":"공화국, 공화제"},{"es":"reservar","kr":"예약하다"},{"es":"resfriado","kr":"감기 걸린; 감기"},{"es":"residencial","kr":"주택용의"},{"es":"resolver","kr":"해결하다"},{"es":"respeto","kr":"존경, 경의"},{"es":"responder","kr":"대답하다"},{"es":"respuesta","kr":"대답"},{"es":"restaurante","kr":"레스토랑"},{"es":"resto","kr":"나머지"},{"es":"reunir","kr":"다시 합치다, 재결합하다"},{"es":"reunión","kr":"모임, 회의"},{"es":"revisar","kr":"복습하다"},{"es":"revista","kr":"잡지"},{"es":"rey","kr":"왕"},{"es":"reír","kr":"웃다; (재귀형) de -를 비웃다"},{"es":"rico","kr":"부유한, 맛있는"},{"es":"riqueza","kr":"풍부함"},{"es":"risa","kr":"웃음"},{"es":"rizado","kr":"곱슬곱슬한"},{"es":"rojo","kr":"붉은, 붉은 색"},{"es":"rol","kr":"역할"},{"es":"romper","kr":"깨지다, 망가지다"},{"es":"romántico","kr":"낭만적인"},{"es":"ropa","kr":"옷, 의복"},{"es":"rosa","kr":"장미"},{"es":"rosado","kr":"장밋빛의"},{"es":"rubio","kr":"금발의"},{"es":"ruido","kr":"소음"},{"es":"ruidoso","kr":"시끄러운"},{"es":"ruta","kr":"루트"},{"es":"rutina","kr":"판에 박힌 일"},{"es":"rápidamente","kr":"빨리"},{"es":"rápido","kr":"빠른, 빠르게"},{"es":"río","kr":"강"},{"es":"saber","kr":"알다; 알고 있다; 지식"},{"es":"sabor","kr":"맛, 풍미"},{"es":"sabroso","kr":"맛있는"},{"es":"sacar","kr":"뽑다, 꺼내다, 추출하다"},{"es":"sagrado","kr":"성스러운"},{"es":"sal","kr":"소금"},{"es":"sala","kr":"거실, 홀"},{"es":"salida","kr":"출구"},{"es":"salir","kr":"나가다"},{"es":"salsa","kr":"소스"},{"es":"saltar","kr":"뛰어넘다, 건너뛰다"},{"es":"salud","kr":"건강"},{"es":"saludar","kr":"인사하다"},{"es":"salvo","kr":"무사한"},{"es":"salón","kr":"거실"},{"es":"santo","kr":"성스런; 성인, 성자"},{"es":"satisfacción","kr":"만족(감)"},{"es":"se","kr":"자신을, 자신에게"},{"es":"secador","kr":"드라이어기"},{"es":"secar","kr":"말리다, (재귀형) 닦다"},{"es":"secretario","kr":"비서"},{"es":"secreto","kr":"비밀"},{"es":"secundario","kr":"두 번째의, 중등의"},{"es":"sed","kr":"갈증"},{"es":"seguir","kr":"따르다, 추종하다, 계속하다"},{"es":"segundo","kr":"두 번째의; 초(시간)"},{"es":"seguridad","kr":"안전(성)"},{"es":"seguro","kr":"안전, 확실, 보험, 안전한, 확실한"},{"es":"según","kr":"~에 따라"},{"es":"seleccionar","kr":"선택하다"},{"es":"selección","kr":"선택, 선발"},{"es":"semana","kr":"주, 일주일(간)"},{"es":"semejante","kr":"비슷한"},{"es":"sentarse","kr":"앉다"},{"es":"sentir","kr":"느끼게 하다, 유감으로 생각하다"},{"es":"separado","kr":"별거중인, 별거자"},{"es":"sepia","kr":"갑오징어"},{"es":"septiembre","kr":"9월"},{"es":"ser","kr":"~이다, 거행되다; 존재"},{"es":"serio","kr":"진지한"},{"es":"serrano","kr":"산지에 사는, 산지의"},{"es":"servicio","kr":"화장실, 서비스, 봉사"},{"es":"servilleta","kr":"냅킨"},{"es":"servir","kr":"봉사하다, 음식을 제공하다"},{"es":"señalar","kr":"표시하다, 가리키다"},{"es":"señor","kr":"신사"},{"es":"señora","kr":"~씨, 주인"},{"es":"señorita","kr":"양, 아가씨"},{"es":"si","kr":"만약 ~이면, ~인지 아닌지"},{"es":"siempre","kr":"언제나, 항상"},{"es":"siesta","kr":"낮잠"},{"es":"siglo","kr":"세기(世紀)"},{"es":"significado","kr":"의미"},{"es":"siguiente","kr":"다음의"},{"es":"silla","kr":"의자"},{"es":"sillón","kr":"안락의자"},{"es":"simpático","kr":"마음씨 좋은"},{"es":"sin","kr":"-없이, -없는"},{"es":"sincero","kr":"성실한, 진실한"},{"es":"sino","kr":"-이 아니라, -이외에는"},{"es":"situación","kr":"상황"},{"es":"sobrar","kr":"남다, 남아있다"},{"es":"sobre","kr":"봉투, ~위에, ~에 대하여, ~쯤/경"},{"es":"sobrino","kr":"조카"},{"es":"sociable","kr":"사교적인"},{"es":"social","kr":"사회의, 사회적인"},{"es":"sociedad","kr":"사회"},{"es":"sofá","kr":"소파"},{"es":"sol","kr":"태양, 햇살, 햇빛"},{"es":"soler","kr":"자주 ~하다"},{"es":"solidario","kr":"연대의, 연대성의"},{"es":"solo","kr":"혼자의; 오직"},{"es":"soltero","kr":"미혼자"},{"es":"sombrero","kr":"모자"},{"es":"sonar","kr":"울리다, 소리 나다"},{"es":"sonrisa","kr":"미소"},{"es":"sopa","kr":"스프, 국"},{"es":"soportar","kr":"받치다, 참다"},{"es":"su","kr":"그(들)의, 그녀(들)의, 당신(들)의"},{"es":"subir","kr":"올라가다"},{"es":"submarinismo","kr":"잠수"},{"es":"suerte","kr":"운, 행운"},{"es":"sueño","kr":"꿈, 졸음"},{"es":"suficiente","kr":"충분한"},{"es":"suficientemente","kr":"충분하게"},{"es":"sufragar","kr":"돕다, 후원하다"},{"es":"superficie","kr":"표면"},{"es":"supermercado","kr":"슈퍼마켓"},{"es":"suyo","kr":"그의, 그녀의, 당신의"},{"es":"sábado","kr":"토요일"},{"es":"sí","kr":"예, 자신"},{"es":"sílaba","kr":"음절"},{"es":"síntoma","kr":"증상"},{"es":"tablao","kr":"타블라오"},{"es":"tableta","kr":"작은 판자, 태블릿"},{"es":"tacón","kr":"(구두) 굽, 높은 굽"},{"es":"tagalo","kr":"타갈로어"},{"es":"tal","kr":"그런, 그런 것, 그런 식으로, 그렇게"},{"es":"talla","kr":"크기, 키"},{"es":"también","kr":"또한, 역시"},{"es":"tan","kr":"그렇게, 이렇게"},{"es":"tango","kr":"탱고, 탱고 음악"},{"es":"tanto","kr":"그렇게 많은, 그렇게 많은 것(들)"},{"es":"tapa","kr":"뚜껑, 덮개, 책의 표지"},{"es":"tapeo","kr":"바에서 타파스를 먹는 것"},{"es":"tardar","kr":"늦어지다, 시간이 걸리다, 더디다"},{"es":"tarde","kr":"오후; 늦게"},{"es":"tarea","kr":"과제, 일"},{"es":"tarjeta","kr":"카드, 엽서"},{"es":"tarta","kr":"케이크"},{"es":"taxi","kr":"택시"},{"es":"taxista","kr":"택시운전사"},{"es":"taza","kr":"찻잔"},{"es":"te","kr":"너를, 너에게"},{"es":"teatro","kr":"극장, 연극"},{"es":"techo","kr":"지붕"},{"es":"teclado","kr":"키보드"},{"es":"telefónico","kr":"전화의"},{"es":"telenovela","kr":"연속극"},{"es":"televisión","kr":"텔레비전"},{"es":"televisor","kr":"텔레비전 수상기"},{"es":"teléfono","kr":"전화"},{"es":"tema","kr":"주제, 테마"},{"es":"temperatura","kr":"온도, 기온"},{"es":"templo","kr":"사원, 신전"},{"es":"temprano","kr":"이른; 일찍"},{"es":"tenedor","kr":"포크"},{"es":"tener","kr":"가지다, 가지고 있다"},{"es":"tenis","kr":"테니스"},{"es":"tenista","kr":"테니스선수"},{"es":"teoría","kr":"이론"},{"es":"terminal","kr":"끝의, 터미널"},{"es":"terminar","kr":"끝내다; 끝나다"},{"es":"ternera","kr":"송아지, 송아지 고기"},{"es":"terraza","kr":"테라스"},{"es":"terror","kr":"공포"},{"es":"texto","kr":"원문, 본문, 교과서"},{"es":"ti","kr":"너(에게, 를 위해)"},{"es":"tiempo","kr":"때, 시간, 시대, 계절, 날씨"},{"es":"tienda","kr":"상점, 가게, 텐트, 천막"},{"es":"tipo","kr":"종류, 타입"},{"es":"toalla","kr":"수건"},{"es":"tocar","kr":"만지다, 연주하다"},{"es":"todavía","kr":"아직"},{"es":"todo","kr":"모든, 온갖; 모든 것, 모두"},{"es":"tomar","kr":"쥐다, 잡다, 차지하다, 먹다, 마시다"},{"es":"tontería","kr":"바보스러움"},{"es":"tonto","kr":"어리석은; 바보"},{"es":"torneo","kr":"토너먼트"},{"es":"toro","kr":"황소, 투우소"},{"es":"torre","kr":"탑"},{"es":"tortilla","kr":"오믈렛, 토르티야"},{"es":"tos","kr":"기침"},{"es":"tostada","kr":"토스트"},{"es":"trabajador","kr":"노동자, 부지런한"},{"es":"trabajar","kr":"일하다, 근무하다, 노동하다"},{"es":"trabajo","kr":"일, 노동, 직장, 숙제"},{"es":"tradicional","kr":"전통적인"},{"es":"traer","kr":"가지고 오다"},{"es":"traje","kr":"옷, 의상, 정장"},{"es":"tranquilidad","kr":"평온, 안정"},{"es":"tranquilizar","kr":"진정시키다"},{"es":"tranquilo","kr":"차분한, 침착한"},{"es":"transbordar","kr":"옮겨 싣다, 갈아타다"},{"es":"transbordo","kr":"옮겨 싣기, 갈아타기"},{"es":"transcripción","kr":"대본"},{"es":"transporte","kr":"운송, 수송선"},{"es":"tranvía","kr":"전차"},{"es":"trasnochar","kr":"밤샘하다"},{"es":"tratamiento","kr":"처치, 처방"},{"es":"tratar","kr":"다루다"},{"es":"travieso","kr":"장난을 좋아하는"},{"es":"través","kr":"기울기, 불행"},{"es":"tren","kr":"기차"},{"es":"trigo","kr":"밀"},{"es":"triste","kr":"슬픈, 쓸쓸한"},{"es":"triunfo","kr":"승리"},{"es":"trompeta","kr":"트럼펫"},{"es":"tráfico","kr":"교통, 교통체증, 장사, 거래"},{"es":"tu","kr":"너의"},{"es":"turismo","kr":"관광(학)"},{"es":"turista","kr":"관광객"},{"es":"turno","kr":"차례, 순서, 순번"},{"es":"turrón","kr":"투론"},{"es":"turístico","kr":"관광의"},{"es":"té","kr":"차(茶)"},{"es":"tímido","kr":"소심한"},{"es":"tío","kr":"삼촌 아저씨, 이모, 고모, 아줌마"},{"es":"típico","kr":"전형적인, 대표적인"},{"es":"tónico","kr":"강세가 있는"},{"es":"tú","kr":"너는"},{"es":"ubicación","kr":"위치"},{"es":"ubicar","kr":"설치하다, 위치하다"},{"es":"unir","kr":"잇다, 연결하다, 합치다"},{"es":"universidad","kr":"대학"},{"es":"universitario","kr":"대학생"},{"es":"unión","kr":"연합"},{"es":"uno","kr":"하나의; 하나, 한 개"},{"es":"urbanización","kr":"주택단지, 도시화"},{"es":"urgencia","kr":"긴급, 위급"},{"es":"usar","kr":"사용하다"},{"es":"usted","kr":"당신"},{"es":"utilizar","kr":"이용하다"},{"es":"uva","kr":"포도"},{"es":"vacablo","kr":"용어, 말"},{"es":"vacabulario","kr":"어휘"},{"es":"vacación","kr":"휴식; ()방학, 휴가"},{"es":"vacío","kr":"텅빈"},{"es":"vale","kr":"좋아!, 됐어!"},{"es":"valer","kr":"가치가 있다, 값이 나가다"},{"es":"variado","kr":"다양한"},{"es":"variar","kr":"다양하게 하다"},{"es":"variedad","kr":"다양성"},{"es":"vario","kr":"여러 가지의"},{"es":"vasco","kr":"바스크어"},{"es":"vaso","kr":"잔, 컵"},{"es":"vecino","kr":"이웃의, 가까운"},{"es":"vegetariano","kr":"채식의"},{"es":"vela","kr":"밤샘, 양초, 돛"},{"es":"veloz","kr":"빠른"},{"es":"vender","kr":"팔다"},{"es":"venir","kr":"오다"},{"es":"ventana","kr":"창문"},{"es":"ver","kr":"보다, 만나다"},{"es":"verano","kr":"여름"},{"es":"verdad","kr":"사실, 진실"},{"es":"verdaderamente","kr":"정말로, 진짜로"},{"es":"verdadero","kr":"진실한, 실제의"},{"es":"verde","kr":"녹색의, 녹색"},{"es":"verdura","kr":"채소"},{"es":"vertical","kr":"수직의, 수직선"},{"es":"vestido","kr":"의복, 의류"},{"es":"vez","kr":"번, 횟수; a veces 가끔"},{"es":"viajar","kr":"여행하다"},{"es":"viaje","kr":"여행"},{"es":"victoria","kr":"승리"},{"es":"vida","kr":"목숨, 생명, 생활"},{"es":"videojuego","kr":"비디오게임"},{"es":"viejo","kr":"늙은, 오랜, 묵은; 노인"},{"es":"viento","kr":"바람"},{"es":"vientre","kr":"창자, 내장, 배"},{"es":"viernes","kr":"금요일"},{"es":"vino","kr":"포도주, 술"},{"es":"violoncelo","kr":"첼로"},{"es":"violín","kr":"바이올린"},{"es":"visita","kr":"방문(객)"},{"es":"visitar","kr":"방문하다"},{"es":"vista","kr":"광경, 시각"},{"es":"viudo","kr":"홀아비"},{"es":"vivienda","kr":"주거지, 집"},{"es":"vivir","kr":"살다; 경험하다"},{"es":"vocálico","kr":"모음의"},{"es":"volar","kr":"날다"},{"es":"voleibol","kr":"배구"},{"es":"voluntariado","kr":"지원병, 지원인력"},{"es":"voluntario","kr":"자원자, 지원자"},{"es":"volver","kr":"되돌아가다"},{"es":"vosotros","kr":"너희들은"},{"es":"vuelo","kr":"비행, 비상"},{"es":"vuelta","kr":"회전"},{"es":"vuestro","kr":"너희들의"},{"es":"vía","kr":"길, 경로"},{"es":"waterpolo","kr":"수구"},{"es":"web","kr":"웹"},{"es":"won","kr":"원"},{"es":"xilófono","kr":"실로폰"},{"es":"y","kr":"그리고, ~와(과)"},{"es":"ya","kr":"벌써, 이제, 곧"},{"es":"yerno","kr":"사위"},{"es":"yo","kr":"나, 저"},{"es":"yoga","kr":"요가"},{"es":"yuca","kr":"(식물) 유카"},{"es":"zapatilla","kr":"슬리퍼, 실내화"},{"es":"zapato","kr":"신발, 구두"},{"es":"zigzag","kr":"지그재그형"},{"es":"zona","kr":"지역, 지대, 구역"},{"es":"zumo","kr":"즙, 주스"},{"es":"árbol","kr":"나무"},{"es":"él","kr":"그, 그 남자"},{"es":"época","kr":"시대"},{"es":"éxito","kr":"성공"},{"es":"último","kr":"마지막의, 최신의"},{"es":"único","kr":"유일한"},{"es":"útil","kr":"유용한"}]</script>
+<script>
+(function(){
+  const VOCAB = JSON.parse(document.getElementById('vocab-data').textContent);
+
+  const esWordEl = document.getElementById('esWord');
+  const answerEl = document.getElementById('answer');
+  const goBtn = document.getElementById('goBtn');
+  const revealEl = document.getElementById('reveal');
+  const verdictEl = document.getElementById('verdict');
+  const meaningEl = document.getElementById('meaning');
+  const hintEl = document.getElementById('hintText');
+  const okCountEl = document.getElementById('okCount');
+  const noCountEl = document.getElementById('noCount');
+  const progressFillEl = document.getElementById('progressFill');
+  const progressLabelEl = document.getElementById('progressLabel');
+  const cycleLabelEl = document.getElementById('cycleLabel');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let queue = [];
+  let pos = 0;
+  let cycle = 1;
+  let current = null;
+  let phase = 'answering'; // 'answering' | 'revealed'
+  let okCount = 0;
+  let noCount = 0;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function newCycle(){
+    queue = shuffle(VOCAB);
+    pos = 0;
+    cycleLabelEl.textContent = cycle + '회독';
+  }
+
+  function normalize(s){
+    return s
+      .toLowerCase()
+      .replace(/[.,;·~()\[\]!?"'`\-\s]/g, '');
+  }
+
+  // split meaning into candidate clauses so partial phrasing still counts
+  function meaningClauses(meaning){
+    return meaning
+      .split(/[;,]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function checkAnswer(userInput, meaning){
+    const u = normalize(userInput);
+    if(!u) return false;
+    const clauses = meaningClauses(meaning);
+    for(const c of clauses){
+      const nc = normalize(c);
+      if(!nc) continue;
+      if(nc === u || nc.includes(u) || u.includes(nc)){
+        // guard against trivially short accidental substring matches
+        if(u.length >= 2 || nc.length <= 3) return true;
+      }
+    }
+    return false;
+  }
+
+  function updateProgress(){
+    progressLabelEl.textContent = pos + ' / ' + queue.length;
+    progressFillEl.style.width = (queue.length ? (pos / queue.length * 100) : 0) + '%';
+  }
+
+  function nextWord(){
+    if(pos >= queue.length){
+      cycle += 1;
+      newCycle();
+    }
+    current = queue[pos];
+    pos += 1;
+    updateProgress();
+
+    esWordEl.textContent = current.es;
+    answerEl.value = '';
+    answerEl.disabled = false;
+    answerEl.classList.remove('correct','wrong');
+    revealEl.classList.remove('show','is-correct','is-wrong');
+    hintEl.innerHTML = '뜻을 입력하고 <kbd>Enter</kbd>를 누르세요';
+    phase = 'answering';
+    answerEl.focus();
+  }
+
+  function submitAnswer(){
+    const userInput = answerEl.value.trim();
+    const isCorrect = checkAnswer(userInput, current.kr);
+
+    if(isCorrect){
+      okCount += 1;
+      okCountEl.textContent = okCount;
+      answerEl.classList.add('correct');
+      verdictEl.textContent = '정답';
+      revealEl.classList.add('show','is-correct');
+    } else {
+      noCount += 1;
+      noCountEl.textContent = noCount;
+      answerEl.classList.add('wrong');
+      verdictEl.textContent = userInput ? '오답' : '패스';
+      revealEl.classList.add('show','is-wrong');
+    }
+    meaningEl.innerHTML = '<b>' + current.es + '</b>' + current.kr;
+    answerEl.disabled = true;
+    hintEl.innerHTML = '<kbd>Enter</kbd>를 눌러 다음 단어로';
+    phase = 'revealed';
+  }
+
+  function handleAdvance(){
+    if(phase === 'answering'){
+      submitAnswer();
+    } else {
+      nextWord();
+    }
+  }
+
+  // Enter는 입력칸이 비활성화된 상태에서도 동작하도록 document에서 처리
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      handleAdvance();
+    }
+  });
+
+  goBtn.addEventListener('click', handleAdvance);
+
+  resetBtn.addEventListener('click', function(){
+    okCount = 0; noCount = 0;
+    okCountEl.textContent = 0; noCountEl.textContent = 0;
+    cycle = 1;
+    newCycle();
+    nextWord();
+  });
+
+  // init
+  newCycle();
+  nextWord();
+})();
+</script>
+
+</body>
+</html>
